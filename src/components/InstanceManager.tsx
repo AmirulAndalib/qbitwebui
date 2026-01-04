@@ -4,6 +4,7 @@ import { logout, changePassword } from '../api/auth'
 import { ThemeSwitcher } from './ThemeSwitcher'
 import { SearchPanel } from './SearchPanel'
 import { useUpdateCheck } from '../hooks/useUpdateCheck'
+import { formatSpeed, formatSize } from '../utils/format'
 
 declare const __APP_VERSION__: string
 
@@ -20,12 +21,8 @@ interface InstanceStats {
 	error: number
 	dlSpeed: number
 	upSpeed: number
-}
-
-function formatSpeed(bytes: number): string {
-	if (bytes < 1024) return `${bytes} B/s`
-	if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB/s`
-	return `${(bytes / 1024 / 1024).toFixed(1)} MB/s`
+	allTimeDownload: number
+	allTimeUpload: number
 }
 
 function SpeedGraph({ history, color }: { history: number[]; color: string }) {
@@ -362,7 +359,7 @@ export function InstanceManager({ username, onSelectInstance, onLogout }: Props)
 				)}
 
 				{stats.length > 0 && !showForm && (
-					<div className="grid grid-cols-2 gap-4 mb-6">
+					<div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
 						<div className="p-4 rounded-xl border flex items-center justify-between" style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border)' }}>
 							<div className="flex items-center gap-3">
 								<svg className="w-5 h-5" style={{ color: 'var(--accent)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -370,7 +367,7 @@ export function InstanceManager({ username, onSelectInstance, onLogout }: Props)
 								</svg>
 								<div>
 									<div className="text-xs uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>Download</div>
-									<div className="text-lg font-medium" style={{ color: 'var(--text-primary)' }}>
+									<div className="text-lg font-medium tabular-nums" style={{ color: 'var(--text-primary)' }}>
 										{formatSpeed(stats.reduce((a, s) => a + s.dlSpeed, 0))}
 									</div>
 								</div>
@@ -384,12 +381,24 @@ export function InstanceManager({ username, onSelectInstance, onLogout }: Props)
 								</svg>
 								<div>
 									<div className="text-xs uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>Upload</div>
-									<div className="text-lg font-medium" style={{ color: 'var(--text-primary)' }}>
+									<div className="text-lg font-medium tabular-nums" style={{ color: 'var(--text-primary)' }}>
 										{formatSpeed(stats.reduce((a, s) => a + s.upSpeed, 0))}
 									</div>
 								</div>
 							</div>
 							<SpeedGraph history={upHistory} color="#a6e3a1" />
+						</div>
+						<div className="p-4 rounded-xl border" style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border)' }}>
+							<div className="text-xs uppercase tracking-wider mb-1" style={{ color: 'var(--text-muted)' }}>All-Time Down</div>
+							<div className="text-lg font-medium tabular-nums" style={{ color: 'var(--accent)' }}>
+								{formatSize(stats.reduce((a, s) => a + s.allTimeDownload, 0))}
+							</div>
+						</div>
+						<div className="p-4 rounded-xl border" style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border)' }}>
+							<div className="text-xs uppercase tracking-wider mb-1" style={{ color: 'var(--text-muted)' }}>All-Time Up</div>
+							<div className="text-lg font-medium tabular-nums" style={{ color: '#a6e3a1' }}>
+								{formatSize(stats.reduce((a, s) => a + s.allTimeUpload, 0))}
+							</div>
 						</div>
 					</div>
 				)}

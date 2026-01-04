@@ -40,6 +40,8 @@ instances.get('/', (c) => {
 
 interface TorrentInfo {
 	state: string
+	downloaded: number
+	uploaded: number
 }
 
 interface TransferInfo {
@@ -58,6 +60,8 @@ interface InstanceStats {
 	error: number
 	dlSpeed: number
 	upSpeed: number
+	allTimeDownload: number
+	allTimeUpload: number
 }
 
 async function fetchInstanceStats(instance: Instance): Promise<InstanceStats> {
@@ -72,6 +76,8 @@ async function fetchInstanceStats(instance: Instance): Promise<InstanceStats> {
 		error: 0,
 		dlSpeed: 0,
 		upSpeed: 0,
+		allTimeDownload: 0,
+		allTimeUpload: 0,
 	}
 
 	try {
@@ -98,6 +104,8 @@ async function fetchInstanceStats(instance: Instance): Promise<InstanceStats> {
 		base.total = torrents.length
 		base.dlSpeed = transfer.dl_info_speed
 		base.upSpeed = transfer.up_info_speed
+		base.allTimeDownload = torrents.reduce((sum, t) => sum + t.downloaded, 0)
+		base.allTimeUpload = torrents.reduce((sum, t) => sum + t.uploaded, 0)
 
 		for (const t of torrents) {
 			if (t.state === 'pausedUP' || t.state === 'pausedDL' || t.state === 'stoppedUP' || t.state === 'stoppedDL') {
