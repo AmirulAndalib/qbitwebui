@@ -1,5 +1,6 @@
 import { decrypt } from './crypto'
 import { fetchWithTls } from './fetch'
+import { log } from './logger'
 
 interface QbtInstance {
 	url: string
@@ -53,7 +54,8 @@ export async function loginToQbt(instance: QbtInstance): Promise<QbtLoginResult>
 		}
 
 		return { success: true, cookie }
-	} catch {
+	} catch (e) {
+		log.error(`qBittorrent login failed: ${e instanceof Error ? e.message : 'Unknown error'}`)
 		return { success: false, error: 'Connection failed' }
 	}
 }
@@ -98,7 +100,8 @@ export async function testQbtConnection(url: string, username?: string, password
 
 		const version = await versionRes.text()
 		return { success: true, cookie, version }
-	} catch {
+	} catch (e) {
+		log.error(`qBittorrent connection test failed: ${e instanceof Error ? e.message : 'Unknown error'}`)
 		return { success: false, error: 'Connection failed' }
 	}
 }
@@ -120,7 +123,8 @@ export async function testStoredQbtInstance(instance: QbtInstance): Promise<QbtL
 
 		const version = await versionRes.text()
 		return { success: true, cookie: loginResult.cookie, version }
-	} catch {
+	} catch (e) {
+		log.error(`qBittorrent stored instance test failed: ${e instanceof Error ? e.message : 'Unknown error'}`)
 		return { success: false, error: 'Connection failed' }
 	}
 }

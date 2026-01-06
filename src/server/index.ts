@@ -5,7 +5,15 @@ import auth from './routes/auth'
 import instances from './routes/instances'
 import proxy from './routes/proxy'
 import integrations from './routes/integrations'
+import { log } from './utils/logger'
 
+const banner = `
+   ___  ____ ___ _______        _______ ____  _   _ ___
+  / _ \\| __ )_ _|_   _\\ \\      / / ____| __ )| | | |_ _|
+ | | | |  _ \\| |  | |  \\ \\ /\\ / /|  _| |  _ \\| | | || |
+ | |_| | |_) | |  | |   \\ V  V / | |___| |_) | |_| || |
+  \\__\\_\\____/___| |_|    \\_/\\_/  |_____|____/ \\___/|___|
+`
 const app = new Hono()
 
 app.use('*', cors({
@@ -24,7 +32,10 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 const port = Number(process.env.PORT) || 3000
-console.log(`Server running on http://localhost:${port}`)
+const env = process.env.NODE_ENV || 'development'
+
+console.log(banner)
+log.info(`Server running on port ${port} (${env})`)
 
 export default {
 	port,

@@ -3,6 +3,7 @@ import { db, type Instance } from '../db'
 import { loginToQbt as qbtLogin } from '../utils/qbt'
 import { authMiddleware } from '../middleware/auth'
 import { fetchWithTls } from '../utils/fetch'
+import { log } from '../utils/logger'
 
 const proxy = new Hono()
 
@@ -127,7 +128,8 @@ proxy.all('/:id/qbt/*', async (c) => {
 			status: res.status,
 			headers: responseHeaders,
 		})
-	} catch {
+	} catch (e) {
+		log.error(`qBittorrent proxy failed for instance ${instanceId}: ${e instanceof Error ? e.message : 'Unknown error'}`)
 		return c.json({ error: 'Failed to connect to qBittorrent instance' }, 502)
 	}
 })

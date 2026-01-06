@@ -4,6 +4,7 @@ import { db, type User } from '../db'
 import { hashPassword, verifyPassword, generateSessionId } from '../utils/crypto'
 import { checkRateLimit, resetRateLimit } from '../utils/rateLimit'
 import { authMiddleware } from '../middleware/auth'
+import { log } from '../utils/logger'
 
 const auth = new Hono()
 
@@ -64,6 +65,7 @@ auth.post('/register', async (c) => {
 		path: '/',
 	})
 
+	log.info(`User registered: ${username}`)
 	return c.json({ id: result.lastInsertRowid, username }, 201)
 })
 
@@ -82,6 +84,7 @@ auth.post('/login', async (c) => {
 	).get(username)
 
 	if (!user || !(await verifyPassword(password, user.password_hash))) {
+		log.warn(`Login failed for user: ${username} from ${ip}`)
 		return c.json({ error: 'Invalid credentials' }, 401)
 	}
 
@@ -101,6 +104,7 @@ auth.post('/login', async (c) => {
 		path: '/',
 	})
 
+	log.info(`User logged in: ${user.username}`)
 	return c.json({ id: user.id, username: user.username })
 })
 

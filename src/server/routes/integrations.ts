@@ -4,6 +4,7 @@ import { encrypt, decrypt } from '../utils/crypto'
 import { validateUrl } from '../utils/url'
 import { loginToQbt } from '../utils/qbt'
 import { authMiddleware } from '../middleware/auth'
+import { log } from '../utils/logger'
 
 const integrations = new Hono()
 
@@ -124,7 +125,8 @@ integrations.post('/test', async (c) => {
 
 		const data = await res.json() as { version: string }
 		return c.json({ success: true, version: data.version })
-	} catch {
+	} catch (e) {
+		log.error(`Prowlarr test failed: ${e instanceof Error ? e.message : 'Unknown error'}`)
 		return c.json({ error: 'Connection failed' }, 400)
 	}
 })
@@ -153,7 +155,8 @@ integrations.get('/:id/indexers', async (c) => {
 
 		const indexers = await res.json()
 		return c.json(indexers)
-	} catch {
+	} catch (e) {
+		log.error(`Prowlarr indexers fetch failed: ${e instanceof Error ? e.message : 'Unknown error'}`)
 		return c.json({ error: 'Failed to fetch indexers' }, 400)
 	}
 })
@@ -195,7 +198,8 @@ integrations.get('/:id/search', async (c) => {
 
 		const results = await res.json()
 		return c.json(results)
-	} catch {
+	} catch (e) {
+		log.error(`Prowlarr search failed: ${e instanceof Error ? e.message : 'Unknown error'}`)
 		return c.json({ error: 'Search failed' }, 400)
 	}
 })
@@ -275,7 +279,8 @@ integrations.post('/:id/grab', async (c) => {
 		}
 
 		return c.json({ success: true })
-	} catch {
+	} catch (e) {
+		log.error(`Prowlarr grab failed: ${e instanceof Error ? e.message : 'Unknown error'}`)
 		return c.json({ error: 'Failed to grab release' }, 400)
 	}
 })
