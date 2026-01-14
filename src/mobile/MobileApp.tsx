@@ -26,9 +26,10 @@ const queryClient = new QueryClient({
 interface Props {
 	username: string
 	onLogout: () => void
+	authDisabled?: boolean
 }
 
-export function MobileApp({ username, onLogout }: Props) {
+export function MobileApp({ username, onLogout, authDisabled }: Props) {
 	const [instances, setInstances] = useState<Instance[]>([])
 	const [selectedInstance, setSelectedInstance] = useState<Instance | 'all'>('all')
 	const [loading, setLoading] = useState(true)
@@ -95,13 +96,15 @@ export function MobileApp({ username, onLogout }: Props) {
 				<p className="text-sm text-center mb-6" style={{ color: 'var(--text-muted)' }}>
 					Add a qBittorrent instance using the desktop version to get started.
 				</p>
-				<button
-					onClick={handleLogout}
-					className="px-6 py-3 rounded-xl text-sm font-medium"
-					style={{ backgroundColor: 'var(--bg-secondary)', color: 'var(--text-primary)' }}
-				>
-					Logout
-				</button>
+				{!authDisabled && (
+					<button
+						onClick={handleLogout}
+						className="px-6 py-3 rounded-xl text-sm font-medium"
+						style={{ backgroundColor: 'var(--bg-secondary)', color: 'var(--text-primary)' }}
+					>
+						Logout
+					</button>
+				)}
 			</div>
 		)
 	}
@@ -132,40 +135,42 @@ export function MobileApp({ username, onLogout }: Props) {
 						</div>
 						<div className="flex items-center gap-2">
 						<MobileThemeSwitcher />
-						<div className="relative">
-							<button
-								onClick={() => setShowUserMenu(!showUserMenu)}
-								className="w-9 h-9 rounded-full flex items-center justify-center active:scale-95 transition-transform"
-								style={{ backgroundColor: 'var(--bg-secondary)' }}
-							>
-								<svg className="w-5 h-5" style={{ color: 'var(--text-muted)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-									<path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
-								</svg>
-							</button>
-							{showUserMenu && (
-								<>
-									<div className="fixed inset-0 z-40" onClick={() => setShowUserMenu(false)} />
-									<div
-										className="absolute right-0 top-full mt-2 z-50 min-w-[160px] rounded-xl border shadow-xl overflow-hidden"
-										style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border)' }}
-									>
-										<div className="px-4 py-3 border-b" style={{ borderColor: 'var(--border)' }}>
-											<span className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>{username}</span>
-										</div>
-										<button
-											onClick={() => { setShowUserMenu(false); handleLogout() }}
-											className="w-full text-left px-4 py-3 text-sm active:bg-[var(--bg-tertiary)] flex items-center gap-3"
-											style={{ color: 'var(--error)' }}
+						{!authDisabled && (
+							<div className="relative">
+								<button
+									onClick={() => setShowUserMenu(!showUserMenu)}
+									className="w-9 h-9 rounded-full flex items-center justify-center active:scale-95 transition-transform"
+									style={{ backgroundColor: 'var(--bg-secondary)' }}
+								>
+									<svg className="w-5 h-5" style={{ color: 'var(--text-muted)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+										<path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+									</svg>
+								</button>
+								{showUserMenu && (
+									<>
+										<div className="fixed inset-0 z-40" onClick={() => setShowUserMenu(false)} />
+										<div
+											className="absolute right-0 top-full mt-2 z-50 min-w-[160px] rounded-xl border shadow-xl overflow-hidden"
+											style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border)' }}
 										>
-											<svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-												<path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
-											</svg>
-											Logout
-										</button>
-									</div>
-								</>
-							)}
-						</div>
+											<div className="px-4 py-3 border-b" style={{ borderColor: 'var(--border)' }}>
+												<span className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>{username}</span>
+											</div>
+											<button
+												onClick={() => { setShowUserMenu(false); handleLogout() }}
+												className="w-full text-left px-4 py-3 text-sm active:bg-[var(--bg-tertiary)] flex items-center gap-3"
+												style={{ color: 'var(--error)' }}
+											>
+												<svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+													<path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
+												</svg>
+												Logout
+											</button>
+										</div>
+									</>
+								)}
+							</div>
+						)}
 						</div>
 					</div>
 					{mainTab === 'torrents' && (

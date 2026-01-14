@@ -29,10 +29,12 @@ export default function App() {
 	const [view, setView] = useState<View>('loading')
 	const [user, setUser] = useState<User | null>(null)
 	const [currentInstance, setCurrentInstance] = useState<Instance | null>(null)
+	const [authDisabled, setAuthDisabled] = useState(false)
 
 	useEffect(() => {
 		fetch('/api/config').then(r => r.json()).then(({ authDisabled }) => {
 			if (authDisabled) {
+				setAuthDisabled(true)
 				setUser({ id: 1, username: 'guest' })
 				setView(isMobile() ? 'mobile' : 'instances')
 				return
@@ -102,6 +104,7 @@ export default function App() {
 					<MobileApp
 						username={user?.username || ''}
 						onLogout={() => { setUser(null); setView('auth') }}
+						authDisabled={authDisabled}
 					/>
 				</Suspense>
 			</ThemeProvider>
@@ -116,6 +119,7 @@ export default function App() {
 						username={user?.username || ''}
 						onSelectInstance={selectInstance}
 						onLogout={() => { setUser(null); setCurrentInstance(null); setView('auth') }}
+						authDisabled={authDisabled}
 					/>
 				</QueryClientProvider>
 			</ThemeProvider>

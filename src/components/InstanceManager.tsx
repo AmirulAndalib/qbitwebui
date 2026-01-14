@@ -53,9 +53,10 @@ interface Props {
 	username: string
 	onSelectInstance: (instance: Instance) => void
 	onLogout: () => void
+	authDisabled?: boolean
 }
 
-export function InstanceManager({ username, onSelectInstance, onLogout }: Props) {
+export function InstanceManager({ username, onSelectInstance, onLogout, authDisabled }: Props) {
 	const [tab, setTab] = useState<Tab>('dashboard')
 	const [activeTool, setActiveTool] = useState<Tool>(null)
 	const [instances, setInstances] = useState<Instance[]>([])
@@ -300,50 +301,52 @@ export function InstanceManager({ username, onSelectInstance, onLogout }: Props)
 							</svg>
 						)}
 					</div>
-					<div className="relative">
-						<button
-							onClick={() => setUserMenuOpen(!userMenuOpen)}
-							className="w-8 h-8 rounded-full flex items-center justify-center transition-colors hover:bg-[var(--bg-tertiary)]"
-							style={{ backgroundColor: 'var(--bg-secondary)' }}
-						>
-							<svg className="w-5 h-5" style={{ color: 'var(--text-muted)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-								<path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
-							</svg>
-						</button>
-						{userMenuOpen && (
-							<>
-								<div className="fixed inset-0 z-10" onClick={() => setUserMenuOpen(false)} />
-								<div
-									className="absolute right-0 top-full mt-2 z-20 min-w-[160px] rounded-lg border shadow-lg overflow-hidden"
-									style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border)' }}
-								>
-									<div className="px-3 py-2 border-b" style={{ borderColor: 'var(--border)' }}>
-										<span className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>{username}</span>
+					{!authDisabled && (
+						<div className="relative">
+							<button
+								onClick={() => setUserMenuOpen(!userMenuOpen)}
+								className="w-8 h-8 rounded-full flex items-center justify-center transition-colors hover:bg-[var(--bg-tertiary)]"
+								style={{ backgroundColor: 'var(--bg-secondary)' }}
+							>
+								<svg className="w-5 h-5" style={{ color: 'var(--text-muted)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+									<path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+								</svg>
+							</button>
+							{userMenuOpen && (
+								<>
+									<div className="fixed inset-0 z-10" onClick={() => setUserMenuOpen(false)} />
+									<div
+										className="absolute right-0 top-full mt-2 z-20 min-w-[160px] rounded-lg border shadow-lg overflow-hidden"
+										style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border)' }}
+									>
+										<div className="px-3 py-2 border-b" style={{ borderColor: 'var(--border)' }}>
+											<span className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>{username}</span>
+										</div>
+										<button
+											onClick={() => { setUserMenuOpen(false); setShowPasswordModal(true) }}
+											className="w-full text-left px-3 py-2 text-sm hover:bg-[var(--bg-tertiary)] transition-colors flex items-center gap-2"
+											style={{ color: 'var(--text-secondary)' }}
+										>
+											<svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+												<path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+											</svg>
+											Change Password
+										</button>
+										<button
+											onClick={() => { setUserMenuOpen(false); handleLogout() }}
+											className="w-full text-left px-3 py-2 text-sm hover:bg-[var(--bg-tertiary)] transition-colors flex items-center gap-2"
+											style={{ color: 'var(--error)' }}
+										>
+											<svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+												<path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
+											</svg>
+											Logout
+										</button>
 									</div>
-									<button
-										onClick={() => { setUserMenuOpen(false); setShowPasswordModal(true) }}
-										className="w-full text-left px-3 py-2 text-sm hover:bg-[var(--bg-tertiary)] transition-colors flex items-center gap-2"
-										style={{ color: 'var(--text-secondary)' }}
-									>
-										<svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-											<path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
-										</svg>
-										Change Password
-									</button>
-									<button
-										onClick={() => { setUserMenuOpen(false); handleLogout() }}
-										className="w-full text-left px-3 py-2 text-sm hover:bg-[var(--bg-tertiary)] transition-colors flex items-center gap-2"
-										style={{ color: 'var(--error)' }}
-									>
-										<svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-											<path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
-										</svg>
-										Logout
-									</button>
-								</div>
-							</>
-						)}
-					</div>
+								</>
+							)}
+						</div>
+					)}
 				</div>
 			</header>
 
