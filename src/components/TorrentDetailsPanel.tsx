@@ -1,7 +1,9 @@
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
+import type { TorrentFile } from '../types/torrentDetails'
 import { useTorrentProperties, useTorrentTrackers, useTorrentPeers, useTorrentFiles, useTorrentWebSeeds, useSetFilePriority, useAddTrackers, useRemoveTrackers } from '../hooks/useTorrentDetails'
 import { formatSize, formatSpeed, formatDate, formatDuration, formatEta } from '../utils/format'
-import type { Tracker, Peer, TorrentFile } from '../types/torrentDetails'
+import type { Tracker, Peer } from '../types/torrentDetails'
+import { buildFileTree, flattenVisibleNodes, getInitialExpanded } from '../utils/fileTree'
 
 interface Props {
 	hash: string | null
@@ -268,49 +270,72 @@ const PRIORITY_OPTIONS = [
 	{ value: 7, label: 'Max', color: 'var(--accent)' },
 ]
 
-function ContentTab({ hash }: { hash: string }) {
-	const { data: files, isLoading } = useTorrentFiles(hash)
+function ContentTabInner({ hash, files }: { hash: string; files: TorrentFile[] }) {
 	const setPriorityMutation = useSetFilePriority()
+	const tree = useMemo(() => buildFileTree(files), [files])
+	const [expanded, setExpanded] = useState<Set<string>>(() => getInitialExpanded(tree))
+	const flatNodes = useMemo(() => flattenVisibleNodes(tree, expanded), [tree, expanded])
 
-	function handlePriorityChange(index: number, priority: number) {
-		setPriorityMutation.mutate({ hash, ids: [index], priority })
+	function toggleExpanded(path: string) {
+		setExpanded(prev => {
+			const next = new Set(prev)
+			if (next.has(path)) next.delete(path)
+			else next.add(path)
+			return next
+		})
 	}
 
-	if (isLoading) return <LoadingSkeleton />
-	if (!files || files.length === 0) return <EmptyState message="No files" />
+	function handlePriorityChange(fileIndices: number[], priority: number) {
+		setPriorityMutation.mutate({ hash, ids: fileIndices, priority })
+	}
+
 	return (
 		<div className="overflow-auto h-full">
 			<table className="w-full text-xs">
 				<thead className="sticky top-0 backdrop-blur-sm" style={{ backgroundColor: 'color-mix(in srgb, var(--bg-secondary) 95%, transparent)' }}>
 					<tr className="text-left border-b" style={{ color: 'var(--text-muted)', borderColor: 'var(--border)' }}>
 						<th className="px-3 py-2 font-medium text-[9px] uppercase tracking-widest">Name</th>
-						<th className="px-3 py-2 font-medium text-[9px] uppercase tracking-widest text-right">Size</th>
-						<th className="px-3 py-2 font-medium text-[9px] uppercase tracking-widest text-right">Progress</th>
-						<th className="px-3 py-2 font-medium text-[9px] uppercase tracking-widest text-right">Priority</th>
+						<th className="px-3 py-2 font-medium text-[9px] uppercase tracking-widest text-right w-20">Size</th>
+						<th className="px-3 py-2 font-medium text-[9px] uppercase tracking-widest text-right w-24">Progress</th>
+						<th className="px-3 py-2 font-medium text-[9px] uppercase tracking-widest text-right w-20">Priority</th>
 					</tr>
 				</thead>
 				<tbody>
-					{files.map((f: TorrentFile, i: number) => {
-						const progress = f.progress * 100
+					{flatNodes.map(({ node, depth }) => {
+						const progress = node.progress * 100
 						const done = progress >= 100
-						const prioOption = PRIORITY_OPTIONS.find(p => p.value === f.priority) || PRIORITY_OPTIONS[1]
+						const isSkipped = node.priority === 'skip'
+						const isMixed = node.priority === 'mixed'
+						const prioColor = node.priority === 'skip' ? 'var(--error)' : node.priority === 'high' || node.priority === 'max' ? 'var(--warning)' : node.priority === 'mixed' ? 'var(--text-muted)' : 'var(--text-primary)'
+
 						return (
-							<tr key={i} className="border-t transition-colors" style={{ borderColor: 'var(--border)' }}>
+							<tr
+								key={node.path}
+								className={`border-t transition-colors ${node.isFolder ? 'cursor-pointer hover:bg-white/[0.02]' : ''}`}
+								style={{ borderColor: 'var(--border)' }}
+								onClick={node.isFolder ? () => toggleExpanded(node.path) : undefined}
+							>
 								<td className="px-3 py-1.5">
-									<div className="flex items-center gap-2">
-										{done ? (
-											<svg className="w-3 h-3 shrink-0" style={{ color: 'var(--accent)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-												<path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+									<div className="flex items-center gap-1.5" style={{ paddingLeft: `${depth * 16}px` }}>
+										{node.isFolder ? (
+											<svg className="w-3 h-3 shrink-0 transition-transform" style={{ color: 'var(--text-muted)', transform: expanded.has(node.path) ? 'rotate(90deg)' : 'rotate(0deg)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+												<path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+											</svg>
+										) : <span className="w-3" />}
+										{node.isFolder ? (
+											<svg className="w-3.5 h-3.5 shrink-0" style={{ color: '#f59e0b' }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+												<path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12.75V12A2.25 2.25 0 0 1 4.5 9.75h15A2.25 2.25 0 0 1 21.75 12v.75m-8.69-6.44-2.12-2.12a1.5 1.5 0 0 0-1.061-.44H4.5A2.25 2.25 0 0 0 2.25 6v12a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9a2.25 2.25 0 0 0-2.25-2.25h-5.379a1.5 1.5 0 0 1-1.06-.44Z" />
 											</svg>
 										) : (
-											<svg className="w-3 h-3 shrink-0" style={{ color: f.priority === 0 ? 'var(--error)' : 'var(--text-muted)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+											<svg className="w-3 h-3 shrink-0" style={{ color: isSkipped ? 'var(--error)' : done ? 'var(--accent)' : 'var(--text-muted)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
 												<path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
 											</svg>
 										)}
-										<span className="truncate max-w-[280px]" style={{ color: f.priority === 0 ? 'var(--text-muted)' : 'var(--text-primary)', textDecoration: f.priority === 0 ? 'line-through' : 'none' }} title={f.name}>{f.name}</span>
+										<span className="truncate" style={{ color: isSkipped ? 'var(--text-muted)' : 'var(--text-primary)', textDecoration: isSkipped ? 'line-through' : 'none', fontWeight: node.isFolder ? 500 : 400 }} title={node.name}>{node.name}</span>
+										{node.isFolder && <span className="text-[9px] ml-1" style={{ color: 'var(--text-muted)' }}>({node.fileIndices.length})</span>}
 									</div>
 								</td>
-								<td className="px-3 py-1.5 text-right font-mono" style={{ color: 'var(--text-muted)' }}>{formatSize(f.size)}</td>
+								<td className="px-3 py-1.5 text-right font-mono" style={{ color: 'var(--text-muted)' }}>{formatSize(node.size)}</td>
 								<td className="px-3 py-1.5 text-right">
 									<div className="flex items-center justify-end gap-1.5">
 										<div className="w-14 h-1 rounded-full overflow-hidden" style={{ backgroundColor: 'var(--bg-tertiary)' }}>
@@ -319,13 +344,14 @@ function ContentTab({ hash }: { hash: string }) {
 										<span className="font-mono w-9 text-right" style={{ color: done ? 'var(--accent)' : 'var(--text-muted)' }}>{progress.toFixed(0)}%</span>
 									</div>
 								</td>
-								<td className="px-3 py-1.5 text-right">
+								<td className="px-3 py-1.5 text-right" onClick={(e) => e.stopPropagation()}>
 									<select
-										value={f.priority}
-										onChange={(e) => handlePriorityChange(i, parseInt(e.target.value))}
+										value={isMixed ? '' : node.priority === 'skip' ? 0 : node.priority === 'high' ? 6 : node.priority === 'max' ? 7 : 1}
+										onChange={(e) => handlePriorityChange(node.fileIndices, parseInt(e.target.value))}
 										className="px-2 py-1 rounded text-[10px] font-medium border cursor-pointer"
-										style={{ backgroundColor: 'var(--bg-tertiary)', borderColor: 'var(--border)', color: prioOption.color }}
+										style={{ backgroundColor: 'var(--bg-tertiary)', borderColor: 'var(--border)', color: prioColor }}
 									>
+										{isMixed && <option value="" disabled>Mixed</option>}
 										{PRIORITY_OPTIONS.map(p => (
 											<option key={p.value} value={p.value} style={{ backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-primary)' }}>{p.label}</option>
 										))}
@@ -338,6 +364,13 @@ function ContentTab({ hash }: { hash: string }) {
 			</table>
 		</div>
 	)
+}
+
+function ContentTab({ hash }: { hash: string }) {
+	const { data: files, isLoading } = useTorrentFiles(hash)
+	if (isLoading) return <LoadingSkeleton />
+	if (!files || files.length === 0) return <EmptyState message="No files" />
+	return <ContentTabInner key={hash} hash={hash} files={files} />
 }
 
 export function TorrentDetailsPanel({ hash, name, expanded, onToggle, height, onHeightChange }: Props) {
