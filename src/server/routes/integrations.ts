@@ -85,19 +85,17 @@ integrations.post('/', async (c) => {
 	}
 })
 
-integrations.delete('/:id', (c) => {
-	const user = c.get('user')
-	const id = Number(c.req.param('id'))
-
-	const existing = db
+function getUserIntegration(userId: number, integrationId: number) {
+	return db
 		.query<Integration, [number, number]>('SELECT * FROM integrations WHERE id = ? AND user_id = ?')
-		.get(id, user.id)
+		.get(integrationId, userId)
+}
 
-	if (!existing) {
-		return c.json({ error: 'Integration not found' }, 404)
-	}
+integrations.delete('/:id', (c) => {
+	const integration = getUserIntegration(c.get('user').id, Number(c.req.param('id')))
+	if (!integration) return c.json({ error: 'Integration not found' }, 404)
 
-	db.run('DELETE FROM integrations WHERE id = ?', [id])
+	db.run('DELETE FROM integrations WHERE id = ?', [integration.id])
 	return c.json({ success: true })
 })
 
@@ -131,47 +129,44 @@ integrations.post('/test', async (c) => {
 	}
 })
 
-integrations.get('/:id/indexers', async (c) => {
-	const user = c.get('user')
-	const id = Number(c.req.param('id'))
-
-	const integration = db
-		.query<Integration, [number, number]>('SELECT * FROM integrations WHERE id = ? AND user_id = ?')
-		.get(id, user.id)
-
-	if (!integration) {
-		return c.json({ error: 'Integration not found' }, 404)
+async function fetchProwlarrApi(integration: Integration, endpoint: string, label: string) {
+	const apiKey = decrypt(integration.api_key_encrypted)
+	const res = await fetch(`${integration.url}/api/v1/${endpoint}`, {
+		headers: { 'X-Api-Key': apiKey },
+	})
+	if (!res.ok) {
+		throw new Error(`Failed to fetch ${label}: HTTP ${res.status}`)
 	}
+	return res.json()
+}
+
+integrations.get('/:id/indexers', async (c) => {
+	const integration = getUserIntegration(c.get('user').id, Number(c.req.param('id')))
+	if (!integration) return c.json({ error: 'Integration not found' }, 404)
 
 	try {
-		const apiKey = decrypt(integration.api_key_encrypted)
-		const res = await fetch(`${integration.url}/api/v1/indexer`, {
-			headers: { 'X-Api-Key': apiKey },
-		})
-
-		if (!res.ok) {
-			return c.json({ error: `Failed to fetch indexers: HTTP ${res.status}` }, 400)
-		}
-
-		const indexers = await res.json()
-		return c.json(indexers)
+		return c.json(await fetchProwlarrApi(integration, 'indexer', 'indexers'))
 	} catch (e) {
 		log.error(`Prowlarr indexers fetch failed: ${e instanceof Error ? e.message : 'Unknown error'}`)
 		return c.json({ error: 'Failed to fetch indexers' }, 400)
 	}
 })
 
-integrations.get('/:id/search', async (c) => {
-	const user = c.get('user')
-	const id = Number(c.req.param('id'))
+integrations.get('/:id/categories', async (c) => {
+	const integration = getUserIntegration(c.get('user').id, Number(c.req.param('id')))
+	if (!integration) return c.json({ error: 'Integration not found' }, 404)
 
-	const integration = db
-		.query<Integration, [number, number]>('SELECT * FROM integrations WHERE id = ? AND user_id = ?')
-		.get(id, user.id)
-
-	if (!integration) {
-		return c.json({ error: 'Integration not found' }, 404)
+	try {
+		return c.json(await fetchProwlarrApi(integration, 'indexer/categories', 'categories'))
+	} catch (e) {
+		log.error(`Prowlarr categories fetch failed: ${e instanceof Error ? e.message : 'Unknown error'}`)
+		return c.json({ error: 'Failed to fetch categories' }, 400)
 	}
+})
+
+integrations.get('/:id/search', async (c) => {
+	const integration = getUserIntegration(c.get('user').id, Number(c.req.param('id')))
+	if (!integration) return c.json({ error: 'Integration not found' }, 404)
 
 	const query = c.req.query('query')
 	const indexerIds = c.req.query('indexerIds')
@@ -205,16 +200,9 @@ integrations.get('/:id/search', async (c) => {
 })
 
 integrations.post('/:id/grab', async (c) => {
-	const user = c.get('user')
-	const id = Number(c.req.param('id'))
-
-	const integration = db
-		.query<Integration, [number, number]>('SELECT * FROM integrations WHERE id = ? AND user_id = ?')
-		.get(id, user.id)
-
-	if (!integration) {
-		return c.json({ error: 'Integration not found' }, 404)
-	}
+	const userId = c.get('user').id
+	const integration = getUserIntegration(userId, Number(c.req.param('id')))
+	if (!integration) return c.json({ error: 'Integration not found' }, 404)
 
 	const body = await c.req.json<{
 		guid: string
@@ -241,7 +229,7 @@ integrations.post('/:id/grab', async (c) => {
 			},
 			[number, number]
 		>('SELECT id, url, qbt_username, qbt_password_encrypted, skip_auth FROM instances WHERE id = ? AND user_id = ?')
-		.get(body.instanceId, user.id)
+		.get(body.instanceId, userId)
 
 	if (!instance) {
 		return c.json({ error: 'qBittorrent instance not found' }, 404)

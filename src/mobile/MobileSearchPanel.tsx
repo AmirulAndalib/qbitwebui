@@ -5,10 +5,12 @@ import {
 	deleteIntegration,
 	testIntegrationConnection,
 	getIndexers,
+	getProwlarrCategories,
 	search,
 	grabRelease,
 	type Integration,
 	type Indexer,
+	type ProwlarrCategory,
 	type SearchResult,
 } from '../api/integrations'
 import { type Instance } from '../api/instances'
@@ -37,7 +39,10 @@ export function MobileSearchPanel({ instances, onBack }: Props) {
 	const [integrations, setIntegrations] = useState<Integration[]>([])
 	const [selectedIntegration, setSelectedIntegration] = useState<Integration | null>(null)
 	const [indexers, setIndexers] = useState<Indexer[]>([])
+	const [prowlarrCategories, setProwlarrCategories] = useState<ProwlarrCategory[]>([])
 	const [selectedIndexer, setSelectedIndexer] = useState<string>('-2')
+	const [selectedCategory, setSelectedCategory] = useState<string>('')
+	const [showProwlarrCategoryPicker, setShowProwlarrCategoryPicker] = useState(false)
 	const [query, setQuery] = useState('')
 	const [results, setResults] = useState<SearchResult[]>([])
 	const [searching, setSearching] = useState(false)
@@ -80,6 +85,9 @@ export function MobileSearchPanel({ instances, onBack }: Props) {
 			getIndexers(selectedIntegration.id)
 				.then(setIndexers)
 				.catch(() => setIndexers([]))
+			getProwlarrCategories(selectedIntegration.id)
+				.then(setProwlarrCategories)
+				.catch(() => setProwlarrCategories([]))
 		}
 	}, [selectedIntegration])
 
@@ -115,7 +123,10 @@ export function MobileSearchPanel({ instances, onBack }: Props) {
 		setError('')
 		setResults([])
 		try {
-			const data = await search(selectedIntegration.id, query, { indexerIds: selectedIndexer })
+			const data = await search(selectedIntegration.id, query, {
+				indexerIds: selectedIndexer,
+				categories: selectedCategory || undefined,
+			})
 			setResults(data)
 			setFilter('')
 		} catch (err) {
@@ -513,6 +524,32 @@ export function MobileSearchPanel({ instances, onBack }: Props) {
 							</svg>
 						</button>
 						<button
+							type="button"
+							onClick={() => setShowProwlarrCategoryPicker(true)}
+							className="flex-1 px-4 py-2.5 rounded-xl border text-sm flex items-center justify-between"
+							style={{
+								backgroundColor: 'var(--bg-secondary)',
+								borderColor: 'var(--border)',
+								color: 'var(--text-primary)',
+							}}
+						>
+							<span className="truncate">
+								{selectedCategory
+									? prowlarrCategories.find((c) => String(c.id) === selectedCategory)?.name || 'All'
+									: 'All Categories'}
+							</span>
+							<svg
+								className="w-4 h-4 shrink-0 ml-2"
+								style={{ color: 'var(--text-muted)' }}
+								fill="none"
+								viewBox="0 0 24 24"
+								stroke="currentColor"
+								strokeWidth={2}
+							>
+								<path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+							</svg>
+						</button>
+						<button
 							type="submit"
 							disabled={searching || !query.trim()}
 							className="px-6 py-2.5 rounded-xl text-sm font-medium disabled:opacity-50"
@@ -747,6 +784,84 @@ export function MobileSearchPanel({ instances, onBack }: Props) {
 								>
 									<span style={{ color: 'var(--text-primary)' }}>{indexer.name}</span>
 									{String(indexer.id) === selectedIndexer && (
+										<svg
+											className="w-5 h-5"
+											style={{ color: 'var(--accent)' }}
+											fill="none"
+											viewBox="0 0 24 24"
+											stroke="currentColor"
+											strokeWidth={2}
+										>
+											<path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+										</svg>
+									)}
+								</button>
+							))}
+						</div>
+					</div>
+				</>
+			)}
+
+			{showProwlarrCategoryPicker && (
+				<>
+					<div
+						className="fixed inset-0 z-50"
+						style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}
+						onClick={() => setShowProwlarrCategoryPicker(false)}
+					/>
+					<div
+						className="fixed inset-x-0 bottom-0 z-50 rounded-t-3xl border-t max-h-[70vh] overflow-hidden"
+						style={{
+							backgroundColor: 'var(--bg-primary)',
+							borderColor: 'var(--border)',
+							paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+						}}
+					>
+						<div className="flex justify-center pt-3 pb-2">
+							<div className="w-10 h-1 rounded-full" style={{ backgroundColor: 'var(--text-muted)' }} />
+						</div>
+						<div className="px-5 pb-3 border-b" style={{ borderColor: 'var(--border)' }}>
+							<h3 className="font-semibold" style={{ color: 'var(--text-primary)' }}>
+								Select Category
+							</h3>
+						</div>
+						<div className="overflow-y-auto max-h-[50vh] p-2">
+							<button
+								onClick={() => {
+									setSelectedCategory('')
+									setShowProwlarrCategoryPicker(false)
+								}}
+								className="w-full flex items-center justify-between px-4 py-3 rounded-xl"
+								style={{ backgroundColor: selectedCategory === '' ? 'var(--bg-tertiary)' : 'transparent' }}
+							>
+								<span style={{ color: 'var(--text-primary)' }}>All Categories</span>
+								{selectedCategory === '' && (
+									<svg
+										className="w-5 h-5"
+										style={{ color: 'var(--accent)' }}
+										fill="none"
+										viewBox="0 0 24 24"
+										stroke="currentColor"
+										strokeWidth={2}
+									>
+										<path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+									</svg>
+								)}
+							</button>
+							{prowlarrCategories.map((category) => (
+								<button
+									key={category.id}
+									onClick={() => {
+										setSelectedCategory(String(category.id))
+										setShowProwlarrCategoryPicker(false)
+									}}
+									className="w-full flex items-center justify-between px-4 py-3 rounded-xl"
+									style={{
+										backgroundColor: String(category.id) === selectedCategory ? 'var(--bg-tertiary)' : 'transparent',
+									}}
+								>
+									<span style={{ color: 'var(--text-primary)' }}>{category.name}</span>
+									{String(category.id) === selectedCategory && (
 										<svg
 											className="w-5 h-5"
 											style={{ color: 'var(--accent)' }}

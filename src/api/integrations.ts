@@ -20,6 +20,12 @@ export interface Indexer {
 	protocol: string
 }
 
+export interface ProwlarrCategory {
+	id: number
+	name: string
+	subCategories?: ProwlarrCategory[]
+}
+
 export interface SearchResult {
 	guid: string
 	indexerId: number
@@ -79,6 +85,12 @@ export async function testIntegrationConnection(
 export async function getIndexers(integrationId: number): Promise<Indexer[]> {
 	const res = await fetch(`/api/integrations/${integrationId}/indexers`, { credentials: 'include' })
 	if (!res.ok) throw new Error('Failed to fetch indexers')
+	return res.json()
+}
+
+export async function getProwlarrCategories(integrationId: number): Promise<ProwlarrCategory[]> {
+	const res = await fetch(`/api/integrations/${integrationId}/categories`, { credentials: 'include' })
+	if (!res.ok) throw new Error('Failed to fetch categories')
 	return res.json()
 }
 

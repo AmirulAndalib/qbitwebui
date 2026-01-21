@@ -5,22 +5,18 @@ import {
 	deleteIntegration,
 	testIntegrationConnection,
 	getIndexers,
+	getProwlarrCategories,
 	search,
 	grabRelease,
 	type Integration,
 	type Indexer,
+	type ProwlarrCategory,
 	type SearchResult,
 } from '../api/integrations'
 import { getInstances, type Instance } from '../api/instances'
 import { getCategories, type Category } from '../api/qbittorrent'
+import { formatSize } from '../utils/format'
 import { extractTags, sortResults, filterResults, type SortKey } from '../utils/search'
-
-function formatSize(bytes: number): string {
-	if (bytes < 1024) return `${bytes} B`
-	if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
-	if (bytes < 1024 * 1024 * 1024) return `${(bytes / 1024 / 1024).toFixed(1)} MB`
-	return `${(bytes / 1024 / 1024 / 1024).toFixed(2)} GB`
-}
 
 function formatAge(dateStr: string): string {
 	const date = new Date(dateStr)
@@ -39,7 +35,10 @@ export function SearchPanel() {
 	const [instances, setInstances] = useState<Instance[]>([])
 	const [selectedIntegration, setSelectedIntegration] = useState<Integration | null>(null)
 	const [indexers, setIndexers] = useState<Indexer[]>([])
+	const [prowlarrCategories, setProwlarrCategories] = useState<ProwlarrCategory[]>([])
 	const [selectedIndexer, setSelectedIndexer] = useState<string>('-2')
+	const [selectedCategory, setSelectedCategory] = useState<string>('')
+	const [prowlarrCategoryDropdownOpen, setCategoryDropdownOpenSearch] = useState(false)
 	const [query, setQuery] = useState('')
 	const [results, setResults] = useState<SearchResult[]>([])
 	const [searching, setSearching] = useState(false)
@@ -91,6 +90,9 @@ export function SearchPanel() {
 			getIndexers(selectedIntegration.id)
 				.then(setIndexers)
 				.catch(() => setIndexers([]))
+			getProwlarrCategories(selectedIntegration.id)
+				.then(setProwlarrCategories)
+				.catch(() => setProwlarrCategories([]))
 		}
 	}, [selectedIntegration])
 
@@ -117,6 +119,7 @@ export function SearchPanel() {
 		try {
 			const data = await search(selectedIntegration.id, query, {
 				indexerIds: selectedIndexer,
+				categories: selectedCategory || undefined,
 			})
 			setResults(data)
 		} catch (err) {
@@ -530,6 +533,71 @@ export function SearchPanel() {
 												{indexer.name}
 											</button>
 										))}
+								</div>
+							</>
+						)}
+					</div>
+					<div className="relative">
+						<button
+							type="button"
+							onClick={() => setCategoryDropdownOpenSearch(!prowlarrCategoryDropdownOpen)}
+							className="flex items-center gap-2 px-4 py-2.5 rounded-lg border text-sm"
+							style={{
+								backgroundColor: 'var(--bg-secondary)',
+								borderColor: 'var(--border)',
+								color: 'var(--text-primary)',
+							}}
+						>
+							<span>
+								{selectedCategory
+									? prowlarrCategories.find((c) => String(c.id) === selectedCategory)?.name || 'All Categories'
+									: 'All Categories'}
+							</span>
+							<svg
+								className={`w-4 h-4 transition-transform ${prowlarrCategoryDropdownOpen ? 'rotate-180' : ''}`}
+								style={{ color: 'var(--text-muted)' }}
+								fill="none"
+								viewBox="0 0 24 24"
+								stroke="currentColor"
+								strokeWidth={2}
+							>
+								<path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+							</svg>
+						</button>
+						{prowlarrCategoryDropdownOpen && (
+							<>
+								<div className="fixed inset-0 z-10" onClick={() => setCategoryDropdownOpenSearch(false)} />
+								<div
+									className="absolute right-0 top-full mt-1 z-20 min-w-[200px] max-h-64 overflow-y-auto rounded-lg border shadow-lg"
+									style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border)' }}
+								>
+									<button
+										type="button"
+										onClick={() => {
+											setSelectedCategory('')
+											setCategoryDropdownOpenSearch(false)
+										}}
+										className="w-full text-left px-4 py-2 text-sm hover:bg-[var(--bg-tertiary)] transition-colors"
+										style={{ color: selectedCategory === '' ? 'var(--accent)' : 'var(--text-primary)' }}
+									>
+										All Categories
+									</button>
+									{prowlarrCategories.map((category) => (
+										<button
+											key={category.id}
+											type="button"
+											onClick={() => {
+												setSelectedCategory(String(category.id))
+												setCategoryDropdownOpenSearch(false)
+											}}
+											className="w-full text-left px-4 py-2 text-sm hover:bg-[var(--bg-tertiary)] transition-colors"
+											style={{
+												color: String(category.id) === selectedCategory ? 'var(--accent)' : 'var(--text-primary)',
+											}}
+										>
+											{category.name}
+										</button>
+									))}
 								</div>
 							</>
 						)}
