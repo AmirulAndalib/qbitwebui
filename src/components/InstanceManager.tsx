@@ -262,11 +262,11 @@ export function InstanceManager({
 		setTestResult(null)
 	}
 
-	function getTestButtonLabel(): string {
-		if (testing) return 'Testing...'
-		if (editingId && !formData.qbt_password && !formData.skip_auth) return 'Test Saved'
-		return 'Test Connection'
-	}
+	const testButtonLabel = testing
+		? 'Testing...'
+		: editingId && !formData.qbt_password && !formData.skip_auth
+			? 'Test Saved'
+			: 'Test Connection'
 
 	async function handleLogout() {
 		await logout()
@@ -700,7 +700,7 @@ export function InstanceManager({
 											className="px-4 py-2 rounded-lg text-sm border disabled:opacity-50"
 											style={{ borderColor: 'var(--border)', color: 'var(--text-secondary)' }}
 										>
-											{getTestButtonLabel()}
+											{testButtonLabel}
 										</button>
 										<button
 											type="button"

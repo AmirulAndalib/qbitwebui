@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { Check, Server } from 'lucide-react'
 import { type Instance } from '../api/instances'
 import { deleteTorrents } from '../api/qbittorrent'
@@ -84,14 +84,14 @@ export function OrphanManager({ instances }: Props) {
 		}
 	}
 
-	const groupedByInstance = orphans.reduce(
-		(acc, o) => {
+	const groupedByInstance = useMemo(() => {
+		const acc: Record<string, OrphanTorrent[]> = {}
+		for (const o of orphans) {
 			if (!acc[o.instanceLabel]) acc[o.instanceLabel] = []
 			acc[o.instanceLabel].push(o)
-			return acc
-		},
-		{} as Record<string, OrphanTorrent[]>
-	)
+		}
+		return acc
+	}, [orphans])
 
 	return (
 		<div>

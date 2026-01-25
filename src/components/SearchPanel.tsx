@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, Fragment } from 'react'
+import { useState, useEffect, Fragment } from 'react'
 import { Plus, Trash2, ChevronDown, Filter, X } from 'lucide-react'
 import {
 	getIntegrations,
@@ -70,21 +70,17 @@ export function SearchPanel() {
 
 	const availableTags = extractTags(results.map((r) => r.title))
 
-	const loadData = useCallback(async () => {
-		const [integrationsData, instancesData] = await Promise.all([
-			getIntegrations().catch(() => []),
-			getInstances().catch(() => []),
-		])
-		setIntegrations(integrationsData)
-		setInstances(instancesData)
-		if (integrationsData.length > 0 && !selectedIntegration) {
-			setSelectedIntegration(integrationsData[0])
-		}
-	}, [selectedIntegration])
-
 	useEffect(() => {
-		loadData()
-	}, [loadData])
+		Promise.all([getIntegrations().catch(() => []), getInstances().catch(() => [])]).then(
+			([integrationsData, instancesData]) => {
+				setIntegrations(integrationsData)
+				setInstances(instancesData)
+				if (integrationsData.length > 0) {
+					setSelectedIntegration((prev) => prev ?? integrationsData[0])
+				}
+			}
+		)
+	}, [])
 
 	useEffect(() => {
 		if (selectedIntegration) {
@@ -116,6 +112,8 @@ export function SearchPanel() {
 		setSearching(true)
 		setError('')
 		setResults([])
+		setPage(1)
+		setFilter('')
 
 		try {
 			const data = await search(selectedIntegration.id, query, {
@@ -249,14 +247,10 @@ export function SearchPanel() {
 	const totalPages = Math.ceil(sortedResults.length / itemsPerPage)
 	const paginatedResults = sortedResults.slice((page - 1) * itemsPerPage, page * itemsPerPage)
 
-	useEffect(() => {
+	function handleFilterChange(newFilter: string) {
+		setFilter(newFilter)
 		setPage(1)
-		setFilter('')
-	}, [results])
-
-	useEffect(() => {
-		setPage(1)
-	}, [filter])
+	}
 
 	if (integrations.length === 0 && !showAddForm) {
 		return (
@@ -636,7 +630,7 @@ export function SearchPanel() {
 													type="text"
 													placeholder="Type to filter..."
 													value={filter}
-													onChange={(e) => setFilter(e.target.value)}
+													onChange={(e) => handleFilterChange(e.target.value)}
 													onClick={(e) => e.stopPropagation()}
 													className="w-full px-2.5 py-1.5 rounded border text-sm"
 													style={{
@@ -653,7 +647,7 @@ export function SearchPanel() {
 														key={tag}
 														type="button"
 														onClick={() => {
-															setFilter(filter === tag ? '' : tag)
+															handleFilterChange(filter === tag ? '' : tag)
 															setFilterDropdownOpen(false)
 														}}
 														className="w-full flex items-center justify-between px-3 py-1.5 text-sm rounded hover:bg-[var(--bg-tertiary)] transition-colors"
@@ -673,7 +667,7 @@ export function SearchPanel() {
 						)}
 						{filter && (
 							<button
-								onClick={() => setFilter('')}
+								onClick={() => handleFilterChange('')}
 								className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium"
 								style={{
 									backgroundColor: 'color-mix(in srgb, var(--accent) 15%, transparent)',

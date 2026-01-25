@@ -41,11 +41,7 @@ export function LogViewer({ instances }: Props) {
 					const entries = await getLog(selectedInstance, { ...filters, lastKnownId: lastId })
 					if (entries.length > 0) {
 						lastMainIdRef.current = Math.max(...entries.map((e) => e.id))
-						if (incremental) {
-							setMainLogs((prev) => [...prev, ...entries])
-						} else {
-							setMainLogs(entries)
-						}
+						setMainLogs((prev) => (incremental ? [...prev, ...entries] : entries))
 					} else if (!incremental) {
 						setMainLogs([])
 					}
@@ -54,11 +50,7 @@ export function LogViewer({ instances }: Props) {
 					const entries = await getPeerLog(selectedInstance, lastId === -1 ? undefined : lastId)
 					if (entries.length > 0) {
 						lastPeerIdRef.current = Math.max(...entries.map((e) => e.id))
-						if (incremental) {
-							setPeerLogs((prev) => [...prev, ...entries])
-						} else {
-							setPeerLogs(entries)
-						}
+						setPeerLogs((prev) => (incremental ? [...prev, ...entries] : entries))
 					} else if (!incremental) {
 						setPeerLogs([])
 					}

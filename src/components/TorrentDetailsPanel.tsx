@@ -408,6 +408,16 @@ const PRIORITY_OPTIONS = [
 	{ value: 7, label: 'Max', color: 'var(--accent)' },
 ]
 
+const PRIORITY_TO_VALUE: Record<string, number> = { skip: 0, normal: 1, high: 6, max: 7 }
+
+const PRIORITY_COLORS: Record<string, string> = {
+	skip: 'var(--error)',
+	high: 'var(--warning)',
+	max: 'var(--warning)',
+	mixed: 'var(--text-muted)',
+	normal: 'var(--text-primary)',
+}
+
 function ContentTabInner({ hash, files }: { hash: string; files: TorrentFile[] }) {
 	const setPriorityMutation = useSetFilePriority()
 	const tree = useMemo(() => buildFileTree(files), [files])
@@ -447,14 +457,7 @@ function ContentTabInner({ hash, files }: { hash: string; files: TorrentFile[] }
 						const done = progress >= 100
 						const isSkipped = node.priority === 'skip'
 						const isMixed = node.priority === 'mixed'
-						const prioColor =
-							node.priority === 'skip'
-								? 'var(--error)'
-								: node.priority === 'high' || node.priority === 'max'
-									? 'var(--warning)'
-									: node.priority === 'mixed'
-										? 'var(--text-muted)'
-										: 'var(--text-primary)'
+						const prioColor = PRIORITY_COLORS[node.priority] ?? 'var(--text-primary)'
 
 						return (
 							<tr
@@ -531,17 +534,7 @@ function ContentTabInner({ hash, files }: { hash: string; files: TorrentFile[] }
 								</td>
 								<td className="px-3 py-1.5 text-right" onClick={(e) => e.stopPropagation()}>
 									<select
-										value={
-											isMixed
-												? ''
-												: node.priority === 'skip'
-													? 0
-													: node.priority === 'high'
-														? 6
-														: node.priority === 'max'
-															? 7
-															: 1
-										}
+										value={isMixed ? '' : (PRIORITY_TO_VALUE[node.priority] ?? 1)}
 										onChange={(e) => handlePriorityChange(node.fileIndices, parseInt(e.target.value))}
 										className="px-2 py-1 rounded text-[10px] font-medium border cursor-pointer"
 										style={{ backgroundColor: 'var(--bg-tertiary)', borderColor: 'var(--border)', color: prioColor }}

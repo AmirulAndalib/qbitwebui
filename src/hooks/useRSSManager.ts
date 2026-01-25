@@ -159,12 +159,16 @@ export function useRSSManager({ instances, onViewChange }: UseRSSManagerOptions)
 		}
 	}, [selectedInstance, loadFeeds, loadRules, loadCategories])
 
-	useEffect(() => {
-		if (selectedRule && rules[selectedRule]) {
-			setEditingRule({ ...rules[selectedRule] })
+	function selectRule(ruleName: string | null) {
+		setSelectedRule(ruleName)
+		if (ruleName && rules[ruleName]) {
+			setEditingRule({ ...rules[ruleName] })
+			setMatchingArticles(null)
+		} else {
+			setEditingRule(null)
 			setMatchingArticles(null)
 		}
-	}, [selectedRule, rules])
+	}
 
 	function extractFeedName(url: string): string {
 		try {
@@ -312,7 +316,7 @@ export function useRSSManager({ instances, onViewChange }: UseRSSManagerOptions)
 			setNewRuleName('')
 			await loadRules()
 			if (!mountedRef.current) return
-			setSelectedRule(ruleName)
+			selectRule(ruleName)
 			onViewChange?.('editor')
 		} catch (err) {
 			if (!mountedRef.current) return
@@ -329,8 +333,7 @@ export function useRSSManager({ instances, onViewChange }: UseRSSManagerOptions)
 			await removeRSSRule(selectedInstance.id, ruleName)
 			setRuleDeleteConfirm(null)
 			if (selectedRule === ruleName) {
-				setSelectedRule(null)
-				setEditingRule(null)
+				selectRule(null)
 				onViewChange?.('list')
 			}
 			await loadRules()
@@ -389,9 +392,7 @@ export function useRSSManager({ instances, onViewChange }: UseRSSManagerOptions)
 	function selectInstance(instance: Instance) {
 		setSelectedInstance(instance)
 		setSelectedFeed(null)
-		setSelectedRule(null)
-		setEditingRule(null)
-		setMatchingArticles(null)
+		selectRule(null)
 	}
 
 	function clearError() {
@@ -466,7 +467,7 @@ export function useRSSManager({ instances, onViewChange }: UseRSSManagerOptions)
 		setFeedPath,
 		setFolderName,
 		setDeleteConfirm,
-		setSelectedRule,
+		selectRule,
 		setEditingRule,
 		setNewRuleName,
 		setShowNewRule,

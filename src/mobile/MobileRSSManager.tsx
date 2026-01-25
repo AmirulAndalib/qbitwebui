@@ -105,8 +105,7 @@ export function MobileRSSManager({ instances, onBack }: Props) {
 		if (view !== 'list') {
 			setView('list')
 			if (tab === 'rules') {
-				rss.setSelectedRule(null)
-				rss.setEditingRule(null)
+				rss.selectRule(null)
 			} else {
 				rss.setSelectedFeed(null)
 			}
@@ -479,7 +478,7 @@ export function MobileRSSManager({ instances, onBack }: Props) {
 										className="flex items-center gap-3 px-4 py-3 border-b last:border-b-0 active:bg-[var(--bg-tertiary)]"
 										style={{ borderColor: 'var(--border)' }}
 										onClick={() => {
-											rss.setSelectedRule(name)
+											rss.selectRule(name)
 											setView('editor')
 										}}
 									>

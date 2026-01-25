@@ -1,4 +1,4 @@
-import { useState, useEffect, type ReactNode } from 'react'
+import { useState, useEffect, useMemo, type ReactNode } from 'react'
 import { Settings, X } from 'lucide-react'
 import type { Instance } from '../api/instances'
 import type { QBittorrentPreferences } from '../types/preferences'
@@ -161,12 +161,15 @@ export function SettingsPanel({ instance, onClose }: Props) {
 		}
 	}
 
+	const hasChanges = useMemo(
+		() => JSON.stringify(preferences) !== JSON.stringify(originalPreferences),
+		[preferences, originalPreferences]
+	)
+
 	function handleClose() {
 		if (hasChanges && !confirm('You have unsaved changes. Discard them?')) return
 		onClose()
 	}
-
-	const hasChanges = JSON.stringify(preferences) !== JSON.stringify(originalPreferences)
 
 	return (
 		<div

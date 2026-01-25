@@ -27,10 +27,10 @@ function useAltSpeedMode(instanceId: number | null) {
 	useEffect(() => {
 		if (instanceId === null) return
 		let mounted = true
-		const checkMode = async () => {
-			const mode = await getSpeedLimitsMode(instanceId).catch(() => 0)
-			if (mounted) setEnabled(mode === 1)
-		}
+		const checkMode = () =>
+			getSpeedLimitsMode(instanceId)
+				.then((mode) => mounted && setEnabled(mode === 1))
+				.catch(() => {})
 		checkMode()
 		const interval = setInterval(checkMode, 2000)
 		return () => {
@@ -42,10 +42,9 @@ function useAltSpeedMode(instanceId: number | null) {
 	const toggle = useCallback(async () => {
 		if (instanceId === null || toggling) return
 		setToggling(true)
-		const ok = await toggleSpeedLimitsMode(instanceId)
-			.then(() => true)
-			.catch(() => false)
-		if (ok) setEnabled((prev) => !prev)
+		await toggleSpeedLimitsMode(instanceId)
+			.then(() => setEnabled((prev) => !prev))
+			.catch(() => {})
 		setToggling(false)
 	}, [instanceId, toggling])
 

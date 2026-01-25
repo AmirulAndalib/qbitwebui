@@ -531,7 +531,7 @@ export function RSSManager({ instances }: Props) {
 										<div
 											key={name}
 											className={`flex items-center gap-2 px-3 py-2 cursor-pointer transition-colors group ${rss.selectedRule === name ? 'bg-[var(--bg-tertiary)]' : 'hover:bg-[var(--bg-tertiary)]'}`}
-											onClick={() => rss.setSelectedRule(name)}
+											onClick={() => rss.selectRule(name)}
 										>
 											<div
 												className="w-2 h-2 rounded-full shrink-0"

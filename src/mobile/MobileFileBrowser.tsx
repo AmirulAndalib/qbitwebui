@@ -75,13 +75,12 @@ export function MobileFileBrowser({ onBack }: Props) {
 	}, [loadFiles])
 
 	useEffect(() => {
-		if (showFolderPicker) {
-			setPickerLoading(true)
-			listFiles(pickerPath)
-				.then((files) => setPickerFolders(files.filter((f) => f.isDirectory)))
-				.catch(() => setPickerFolders([]))
-				.finally(() => setPickerLoading(false))
-		}
+		if (!showFolderPicker) return
+		setPickerLoading(true)
+		listFiles(pickerPath)
+			.then((files) => setPickerFolders(files.filter((f) => f.isDirectory)))
+			.catch(() => setPickerFolders([]))
+			.finally(() => setPickerLoading(false))
 	}, [showFolderPicker, pickerPath])
 
 	function handleNavigate(name: string) {

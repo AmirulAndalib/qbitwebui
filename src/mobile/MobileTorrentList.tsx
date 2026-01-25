@@ -43,25 +43,24 @@ const DOWNLOADING_STATES: TorrentState[] = [
 const SEEDING_STATES: TorrentState[] = ['uploading', 'forcedUP', 'stalledUP', 'queuedUP', 'checkingUP']
 const PAUSED_STATES: TorrentState[] = ['pausedDL', 'pausedUP', 'stoppedDL', 'stoppedUP']
 
-function getStateInfo(state: TorrentState): {
-	color: string
-	label: string
-	icon: 'download' | 'upload' | 'pause' | 'error' | 'check'
-} {
-	if (DOWNLOADING_STATES.includes(state)) {
-		if (state === 'stalledDL') return { color: 'var(--warning)', label: 'Stalled', icon: 'download' }
-		if (state === 'queuedDL') return { color: 'var(--text-muted)', label: 'Queued', icon: 'download' }
-		if (state === 'checkingDL') return { color: 'var(--accent)', label: 'Checking', icon: 'check' }
-		return { color: 'var(--accent)', label: 'Downloading', icon: 'download' }
-	}
-	if (SEEDING_STATES.includes(state)) {
-		if (state === 'stalledUP') return { color: '#a6e3a1', label: 'Seeding', icon: 'upload' }
-		if (state === 'queuedUP') return { color: 'var(--text-muted)', label: 'Queued', icon: 'upload' }
-		if (state === 'checkingUP') return { color: '#a6e3a1', label: 'Checking', icon: 'check' }
-		return { color: '#a6e3a1', label: 'Seeding', icon: 'upload' }
-	}
+type StateInfo = { color: string; label: string; icon: 'download' | 'upload' | 'pause' | 'error' | 'check' }
+
+const STATE_INFO: Partial<Record<TorrentState, StateInfo>> = {
+	stalledDL: { color: 'var(--warning)', label: 'Stalled', icon: 'download' },
+	queuedDL: { color: 'var(--text-muted)', label: 'Queued', icon: 'download' },
+	checkingDL: { color: 'var(--accent)', label: 'Checking', icon: 'check' },
+	stalledUP: { color: '#a6e3a1', label: 'Seeding', icon: 'upload' },
+	queuedUP: { color: 'var(--text-muted)', label: 'Queued', icon: 'upload' },
+	checkingUP: { color: '#a6e3a1', label: 'Checking', icon: 'check' },
+	error: { color: 'var(--error)', label: 'Error', icon: 'error' },
+	missingFiles: { color: 'var(--error)', label: 'Error', icon: 'error' },
+}
+
+function getStateInfo(state: TorrentState): StateInfo {
+	if (STATE_INFO[state]) return STATE_INFO[state]
+	if (DOWNLOADING_STATES.includes(state)) return { color: 'var(--accent)', label: 'Downloading', icon: 'download' }
+	if (SEEDING_STATES.includes(state)) return { color: '#a6e3a1', label: 'Seeding', icon: 'upload' }
 	if (PAUSED_STATES.includes(state)) return { color: 'var(--text-muted)', label: 'Paused', icon: 'pause' }
-	if (state === 'error' || state === 'missingFiles') return { color: 'var(--error)', label: 'Error', icon: 'error' }
 	return { color: 'var(--text-muted)', label: state, icon: 'pause' }
 }
 
@@ -132,19 +131,17 @@ function MobileSelect<T extends string>({
 	)
 }
 
-function StateIcon({ type, color }: { type: 'download' | 'upload' | 'pause' | 'error' | 'check'; color: string }) {
-	switch (type) {
-		case 'download':
-			return <ArrowDown className="w-4 h-4" style={{ color }} strokeWidth={2.5} />
-		case 'upload':
-			return <ArrowUp className="w-4 h-4" style={{ color }} strokeWidth={2.5} />
-		case 'pause':
-			return <Pause className="w-4 h-4" style={{ color }} strokeWidth={2.5} />
-		case 'error':
-			return <AlertCircle className="w-4 h-4" style={{ color }} strokeWidth={2.5} />
-		case 'check':
-			return <RefreshCw className="w-4 h-4 animate-spin" style={{ color }} strokeWidth={2.5} />
-	}
+const STATE_ICONS = {
+	download: ArrowDown,
+	upload: ArrowUp,
+	pause: Pause,
+	error: AlertCircle,
+	check: RefreshCw,
+}
+
+function StateIcon({ type, color }: { type: keyof typeof STATE_ICONS; color: string }) {
+	const Icon = STATE_ICONS[type]
+	return <Icon className={`w-4 h-4 ${type === 'check' ? 'animate-spin' : ''}`} style={{ color }} strokeWidth={2.5} />
 }
 
 interface Props {

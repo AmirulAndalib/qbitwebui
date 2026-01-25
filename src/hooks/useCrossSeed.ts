@@ -82,31 +82,27 @@ export function useCrossSeed(instances: Instance[]) {
 	}, [selectedInstance, config?.integration_id])
 
 	useEffect(() => {
-		getLogs(200)
-			.then(setLogs)
-			.catch(() => {})
-		const interval = setInterval(() => {
+		const fetchLogs = () =>
 			getLogs(200)
 				.then(setLogs)
 				.catch(() => {})
-		}, 2000)
+		fetchLogs()
+		const interval = setInterval(fetchLogs, 2000)
 		return () => clearInterval(interval)
 	}, [])
 
 	useEffect(() => {
 		if (!selectedInstance) return
-		const interval = setInterval(() => {
+		const fetchStatus = () =>
 			getInstanceStatus(selectedInstance)
 				.then(setStatus)
 				.catch(() => {})
-		}, 2000)
+		const interval = setInterval(fetchStatus, 2000)
 		return () => clearInterval(interval)
 	}, [selectedInstance])
 
 	useEffect(() => {
-		if (!status?.running) {
-			setStopping(false)
-		}
+		if (!status?.running) setStopping(false)
 	}, [status?.running])
 
 	useEffect(() => {

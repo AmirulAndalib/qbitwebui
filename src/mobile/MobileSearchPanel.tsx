@@ -82,38 +82,32 @@ export function MobileSearchPanel({ instances, onBack }: Props) {
 	}, [])
 
 	useEffect(() => {
-		if (selectedIntegration) {
-			getIndexers(selectedIntegration.id)
-				.then(setIndexers)
-				.catch(() => setIndexers([]))
-			getProwlarrCategories(selectedIntegration.id)
-				.then(setProwlarrCategories)
-				.catch(() => setProwlarrCategories([]))
-		}
+		if (!selectedIntegration) return
+		getIndexers(selectedIntegration.id)
+			.then(setIndexers)
+			.catch(() => setIndexers([]))
+		getProwlarrCategories(selectedIntegration.id)
+			.then(setProwlarrCategories)
+			.catch(() => setProwlarrCategories([]))
 	}, [selectedIntegration])
 
 	useEffect(() => {
-		if (grabInstance) {
-			setLoadingCategories(true)
-			getCategories(grabInstance)
-				.then(setGrabCategories)
-				.catch(() => setGrabCategories({}))
-				.finally(() => setLoadingCategories(false))
-		} else {
+		if (!grabInstance) {
 			setGrabCategories({})
+			return
 		}
+		setLoadingCategories(true)
+		getCategories(grabInstance)
+			.then(setGrabCategories)
+			.catch(() => setGrabCategories({}))
+			.finally(() => setLoadingCategories(false))
 	}, [grabInstance])
 
 	useEffect(() => {
-		if (showGrabSheet) {
-			setGrabCategory('')
-			setGrabSavepath('')
-			if (instances.length === 1) {
-				setGrabInstance(instances[0].id)
-			} else {
-				setGrabInstance(null)
-			}
-		}
+		if (!showGrabSheet) return
+		setGrabCategory('')
+		setGrabSavepath('')
+		setGrabInstance(instances.length === 1 ? instances[0].id : null)
 	}, [showGrabSheet, instances])
 
 	async function handleSearch(e: React.FormEvent) {

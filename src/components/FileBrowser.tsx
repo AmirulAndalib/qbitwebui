@@ -36,15 +36,9 @@ function FolderPicker({ title, onConfirm, onCancel }: FolderPickerProps) {
 	useEffect(() => {
 		let cancelled = false
 		listFiles(pickerPath)
-			.then((files) => {
-				if (!cancelled) setFolders(files.filter((f) => f.isDirectory))
-			})
-			.catch(() => {
-				if (!cancelled) setFolders([])
-			})
-			.finally(() => {
-				if (!cancelled) setLoading(false)
-			})
+			.then((files) => !cancelled && setFolders(files.filter((f) => f.isDirectory)))
+			.catch(() => !cancelled && setFolders([]))
+			.finally(() => !cancelled && setLoading(false))
 		return () => {
 			cancelled = true
 		}
