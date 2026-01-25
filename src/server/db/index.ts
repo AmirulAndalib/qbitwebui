@@ -164,6 +164,17 @@ db.exec(`
 `)
 db.exec(`CREATE INDEX IF NOT EXISTS idx_cross_seed_indexer_integration ON cross_seed_indexer(integration_id)`)
 
+db.exec(`
+	CREATE TABLE IF NOT EXISTS transfer_stats (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		instance_id INTEGER NOT NULL REFERENCES instances(id) ON DELETE CASCADE,
+		timestamp INTEGER NOT NULL,
+		uploaded INTEGER NOT NULL,
+		downloaded INTEGER NOT NULL
+	)
+`)
+db.exec(`CREATE INDEX IF NOT EXISTS idx_transfer_stats_lookup ON transfer_stats(instance_id, timestamp)`)
+
 export interface User {
 	id: number
 	username: string
@@ -284,6 +295,14 @@ export const BlocklistType = {
 } as const
 
 export type BlocklistTypeValue = (typeof BlocklistType)[keyof typeof BlocklistType]
+
+export interface TransferStats {
+	id: number
+	instance_id: number
+	timestamp: number
+	uploaded: number
+	downloaded: number
+}
 
 function cleanupExpiredSessions() {
 	const now = Math.floor(Date.now() / 1000)

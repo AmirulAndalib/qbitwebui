@@ -14,6 +14,7 @@ import {
 	Server,
 	Settings,
 	Pencil,
+	BarChart3,
 } from 'lucide-react'
 import {
 	getInstances,
@@ -32,11 +33,12 @@ import { OrphanManager } from './OrphanManager'
 import { RSSManager } from './RSSManager'
 import { LogViewer } from './LogViewer'
 import { CrossSeedManager } from './CrossSeedManager'
+import { Statistics } from './Statistics'
 import { Checkbox } from './ui'
 import { formatSpeed, formatSize } from '../utils/format'
 
 type Tab = 'dashboard' | 'tools'
-type Tool = 'indexers' | 'files' | 'orphans' | 'rss' | 'logs' | 'cross-seed' | null
+type Tool = 'indexers' | 'files' | 'orphans' | 'rss' | 'logs' | 'cross-seed' | 'statistics' | null
 
 interface InstanceStats {
 	id: number
@@ -352,6 +354,7 @@ export function InstanceManager({
 							{activeTool === 'rss' && <RSSManager instances={instances} />}
 							{activeTool === 'logs' && <LogViewer instances={instances} />}
 							{activeTool === 'cross-seed' && <CrossSeedManager instances={instances} />}
+							{activeTool === 'statistics' && <Statistics />}
 						</>
 					) : (
 						<>
@@ -440,6 +443,19 @@ export function InstanceManager({
 									</div>
 									<div className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
 										Find matching torrents
+									</div>
+								</button>
+								<button
+									onClick={() => setActiveTool('statistics')}
+									className="p-6 rounded-xl border text-left transition-all hover:border-[var(--accent)]"
+									style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border)' }}
+								>
+									<BarChart3 className="w-8 h-8 mb-3" style={{ color: 'var(--accent)' }} strokeWidth={1.5} />
+									<div className="font-medium" style={{ color: 'var(--text-primary)' }}>
+										Statistics
+									</div>
+									<div className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
+										Transfer history
 									</div>
 								</button>
 							</div>

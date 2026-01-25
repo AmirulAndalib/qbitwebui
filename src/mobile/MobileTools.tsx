@@ -1,5 +1,5 @@
 import { useState, useEffect, lazy, Suspense, type ReactNode } from 'react'
-import { Search, FolderOpen, AlertTriangle, Rss, FileText, ArrowLeftRight, ChevronRight } from 'lucide-react'
+import { Search, FolderOpen, AlertTriangle, Rss, FileText, ArrowLeftRight, ChevronRight, BarChart3 } from 'lucide-react'
 import { type Instance } from '../api/instances'
 
 const MobileSearchPanel = lazy(() => import('./MobileSearchPanel').then((m) => ({ default: m.MobileSearchPanel })))
@@ -12,8 +12,9 @@ const MobileLogViewer = lazy(() => import('./MobileLogViewer').then((m) => ({ de
 const MobileCrossSeedManager = lazy(() =>
 	import('./MobileCrossSeedManager').then((m) => ({ default: m.MobileCrossSeedManager }))
 )
+const MobileStatistics = lazy(() => import('./MobileStatistics').then((m) => ({ default: m.MobileStatistics })))
 
-type Tool = 'search' | 'files' | 'orphans' | 'rss' | 'logs' | 'cross-seed' | null
+type Tool = 'search' | 'files' | 'orphans' | 'rss' | 'logs' | 'cross-seed' | 'statistics' | null
 
 const Spinner = (
 	<div className="flex items-center justify-center p-8">
@@ -80,6 +81,12 @@ export function MobileTools({ instances }: Props): ReactNode {
 			return (
 				<LazyTool>
 					<MobileCrossSeedManager instances={instances} onBack={handleBack} />
+				</LazyTool>
+			)
+		case 'statistics':
+			return (
+				<LazyTool>
+					<MobileStatistics onBack={handleBack} />
 				</LazyTool>
 			)
 	}
@@ -229,6 +236,30 @@ export function MobileTools({ instances }: Props): ReactNode {
 						</h3>
 						<p className="text-sm mt-0.5" style={{ color: 'var(--text-muted)' }}>
 							Find matching torrents across trackers
+						</p>
+					</div>
+					<ChevronRight className="w-5 h-5 mt-1 shrink-0" style={{ color: 'var(--text-muted)' }} />
+				</div>
+			</button>
+
+			<button
+				onClick={() => setActiveTool('statistics')}
+				className="w-full p-4 rounded-2xl border text-left active:scale-[0.98] transition-transform"
+				style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border)' }}
+			>
+				<div className="flex items-start gap-4">
+					<div
+						className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
+						style={{ backgroundColor: 'color-mix(in srgb, #a6e3a1 15%, transparent)' }}
+					>
+						<BarChart3 className="w-6 h-6" style={{ color: '#a6e3a1' }} strokeWidth={1.5} />
+					</div>
+					<div className="flex-1 min-w-0">
+						<h3 className="font-semibold" style={{ color: 'var(--text-primary)' }}>
+							Statistics
+						</h3>
+						<p className="text-sm mt-0.5" style={{ color: 'var(--text-muted)' }}>
+							View transfer history over time
 						</p>
 					</div>
 					<ChevronRight className="w-5 h-5 mt-1 shrink-0" style={{ color: 'var(--text-muted)' }} />

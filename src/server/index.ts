@@ -9,6 +9,8 @@ import integrations from './routes/integrations'
 import files from './routes/files'
 import tools from './routes/tools'
 import { crossSeed, startScheduler } from './routes/crossSeed'
+import stats from './routes/stats'
+import { startStatsRecorder } from './utils/statsRecorder'
 import { log } from './utils/logger'
 
 const banner = `
@@ -43,6 +45,7 @@ app.route('/api/integrations', integrations)
 app.route('/api/files', files)
 app.route('/api/tools', tools)
 app.route('/api/cross-seed', crossSeed)
+app.route('/api/stats', stats)
 
 if (process.env.NODE_ENV === 'production') {
 	app.use('/*', serveStatic({ root: './dist' }))
@@ -66,6 +69,7 @@ if (defaultCredentials) {
 }
 
 startScheduler()
+startStatsRecorder()
 
 export default {
 	port,

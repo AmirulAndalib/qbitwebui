@@ -138,3 +138,33 @@ export async function testStoredQbtInstance(instance: QbtInstance): Promise<QbtL
 		return { success: false, error: 'Connection failed' }
 	}
 }
+
+interface SyncMaindata {
+	server_state: {
+		alltime_dl: number
+		alltime_ul: number
+	}
+}
+
+export async function fetchInstanceTransferStats(
+	instance: QbtInstance
+): Promise<{ uploaded: number; downloaded: number } | null> {
+	try {
+		const loginResult = await loginToQbt(instance)
+		if (!loginResult.success) return null
+
+		const headers: Record<string, string> = {}
+		if (loginResult.cookie) headers.Cookie = loginResult.cookie
+
+		const res = await fetchWithTls(`${instance.url}/api/v2/sync/maindata?rid=0`, { headers })
+		if (!res.ok) return null
+
+		const data = (await res.json()) as SyncMaindata
+		return {
+			uploaded: data.server_state.alltime_ul,
+			downloaded: data.server_state.alltime_dl,
+		}
+	} catch {
+		return null
+	}
+}
