@@ -71,6 +71,19 @@ export function getStatsForPeriod(instanceId: number, periodSeconds: number): Pe
 		return { uploaded: 0, downloaded: 0, hasData: false, dataPoints: 0 }
 	}
 
+	const absoluteOldest = db
+		.query<TransferStats, [number]>('SELECT * FROM transfer_stats WHERE instance_id = ? ORDER BY timestamp ASC LIMIT 1')
+		.get(instanceId)
+
+	if (!absoluteOldest) {
+		return { uploaded: 0, downloaded: 0, hasData: false, dataPoints: 0 }
+	}
+
+	const dataDuration = now - absoluteOldest.timestamp
+	if (periodSeconds > dataDuration) {
+		return { uploaded: 0, downloaded: 0, hasData: false, dataPoints: 0 }
+	}
+
 	const oldest = db
 		.query<TransferStats, [number, number]>(
 			'SELECT * FROM transfer_stats WHERE instance_id = ? AND timestamp >= ? ORDER BY timestamp ASC LIMIT 1'
