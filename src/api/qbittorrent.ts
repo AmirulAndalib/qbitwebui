@@ -84,6 +84,14 @@ export async function recheckTorrents(instanceId: number, hashes: string[]): Pro
 	})
 }
 
+export async function reannounceTorrents(instanceId: number, hashes: string[]): Promise<void> {
+	await action(instanceId, '/torrents/reannounce', {
+		method: 'POST',
+		headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+		body: new URLSearchParams({ hashes: hashes.join('|') }),
+	})
+}
+
 export async function deleteTorrents(instanceId: number, hashes: string[], deleteFiles = false): Promise<void> {
 	await action(instanceId, '/torrents/delete', {
 		method: 'POST',

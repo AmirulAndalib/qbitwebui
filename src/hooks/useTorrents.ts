@@ -39,6 +39,13 @@ export function useRecheckTorrents() {
 	})
 }
 
+export function useReannounceTorrents() {
+	const instance = useInstance()
+	return useMutation({
+		mutationFn: (hashes: string[]) => api.reannounceTorrents(instance.id, hashes),
+	})
+}
+
 export function useDeleteTorrents() {
 	const instance = useInstance()
 	const queryClient = useQueryClient()
