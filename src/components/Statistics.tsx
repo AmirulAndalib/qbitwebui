@@ -66,7 +66,7 @@ export function Statistics() {
 												className="text-sm font-semibold tabular-nums"
 												style={{ color: data.hasData ? 'var(--accent)' : 'var(--text-muted)' }}
 											>
-												{data.hasData ? formatSize(data.downloaded) : '—'}
+												{data.hasData ? formatSize(data.downloaded) : 'N/A'}
 											</span>
 										</div>
 										<div className="flex items-center gap-1.5">
@@ -75,7 +75,7 @@ export function Statistics() {
 												className="text-sm font-semibold tabular-nums"
 												style={{ color: data.hasData ? '#a6e3a1' : 'var(--text-muted)' }}
 											>
-												{data.hasData ? formatSize(data.uploaded) : '—'}
+												{data.hasData ? formatSize(data.uploaded) : 'N/A'}
 											</span>
 										</div>
 									</div>

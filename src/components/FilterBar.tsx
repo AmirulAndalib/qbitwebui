@@ -49,7 +49,7 @@ export function FilterBar({ filter, onFilterChange }: Props) {
 					}}
 				>
 					<f.Icon className="w-3.5 h-3.5" strokeWidth={2} />
-					<span className="text-[10px] font-medium">{f.label}</span>
+					<span className="text-xs font-medium">{f.label}</span>
 				</button>
 			))}
 		</>
@@ -104,7 +104,7 @@ function Dropdown<T extends string>({ value, onChange, options, placeholder, Ico
 				}}
 			>
 				<Icon className="w-3.5 h-3.5" strokeWidth={2} />
-				<span className="text-[10px] font-medium max-w-[60px] truncate">{selected?.label ?? placeholder}</span>
+				<span className="text-xs font-medium max-w-[60px] truncate">{selected?.label ?? placeholder}</span>
 			</button>
 			{open && (
 				<div
@@ -140,7 +140,7 @@ function Dropdown<T extends string>({ value, onChange, options, placeholder, Ico
 						>
 							<span className="truncate">{o.label}</span>
 							{o.count !== undefined && (
-								<span style={{ color: 'var(--text-muted)' }} className="ml-2 text-[10px]">
+								<span style={{ color: 'var(--text-muted)' }} className="ml-2 text-xs">
 									{o.count}
 								</span>
 							)}
@@ -179,7 +179,7 @@ export function CategoryDropdown({ value, onChange, categories }: CategoryDropdo
 				}}
 			>
 				<Folder className="w-3.5 h-3.5" strokeWidth={2} />
-				<span className="text-[10px] font-medium max-w-[60px] truncate">{selected ?? 'Category'}</span>
+				<span className="text-xs font-medium max-w-[60px] truncate">{selected ?? 'Category'}</span>
 			</button>
 			{open && (
 				<div
@@ -247,7 +247,7 @@ export function TagDropdown({ value, onChange, tags }: TagDropdownProps) {
 				}}
 			>
 				<Tag className="w-3.5 h-3.5" strokeWidth={2} />
-				<span className="text-[10px] font-medium max-w-[60px] truncate">{selected ?? 'Tag'}</span>
+				<span className="text-xs font-medium max-w-[60px] truncate">{selected ?? 'Tag'}</span>
 			</button>
 			{open && (
 				<div
@@ -298,7 +298,7 @@ export function ManageButton({ onClick }: { onClick: () => void }) {
 			title="Manage categories & tags"
 		>
 			<Settings className="w-3.5 h-3.5" strokeWidth={2} />
-			<span className="text-[10px] font-medium">Manage</span>
+			<span className="text-xs font-medium">Manage</span>
 		</button>
 	)
 }
@@ -378,7 +378,7 @@ export function ColumnSelector({ columns, visible, onChange, columnOrder, onReor
 				title="Configure columns"
 			>
 				<Columns3 className="w-3.5 h-3.5" strokeWidth={2} />
-				<span className="text-[10px] font-medium">Columns</span>
+				<span className="text-xs font-medium">Columns</span>
 			</button>
 			{open && (
 				<div
@@ -389,7 +389,7 @@ export function ColumnSelector({ columns, visible, onChange, columnOrder, onReor
 						className="flex items-center justify-between px-2.5 py-1.5 border-b"
 						style={{ borderColor: 'var(--border)' }}
 					>
-						<span className="text-[10px] uppercase tracking-widest font-medium" style={{ color: 'var(--text-muted)' }}>
+						<span className="text-xs uppercase tracking-widest font-medium" style={{ color: 'var(--text-muted)' }}>
 							Columns
 						</span>
 						<button
@@ -397,7 +397,7 @@ export function ColumnSelector({ columns, visible, onChange, columnOrder, onReor
 								onReset()
 								setOpen(false)
 							}}
-							className="text-[10px] transition-colors hover:opacity-80"
+							className="text-xs transition-colors hover:opacity-80"
 							style={{ color: 'var(--accent)' }}
 						>
 							Reset

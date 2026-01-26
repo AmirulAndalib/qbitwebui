@@ -159,7 +159,7 @@ export function StatusBar() {
 				<div className="flex items-center gap-4">
 					<div className="flex items-center gap-2">
 						<ArrowDown className="w-3.5 h-3.5" style={{ color: 'var(--accent)' }} strokeWidth={2} />
-						<span className="text-xs font-mono font-medium" style={{ color: 'var(--accent)' }}>
+						<span className="text-xs font-mono font-medium whitespace-nowrap" style={{ color: 'var(--accent)' }}>
 							{formatSpeed(data?.dl_info_speed ?? 0)}
 						</span>
 						{(data?.dl_rate_limit ?? 0) > 0 && (
@@ -177,7 +177,7 @@ export function StatusBar() {
 					</div>
 					<div className="flex items-center gap-2">
 						<ArrowUp className="w-3.5 h-3.5" style={{ color: 'var(--warning)' }} strokeWidth={2} />
-						<span className="text-xs font-mono font-medium" style={{ color: 'var(--warning)' }}>
+						<span className="text-xs font-mono font-medium whitespace-nowrap" style={{ color: 'var(--warning)' }}>
 							{formatSpeed(data?.up_info_speed ?? 0)}
 						</span>
 						{(data?.up_rate_limit ?? 0) > 0 && (
