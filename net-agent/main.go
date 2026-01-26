@@ -24,7 +24,7 @@ func main() {
 
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "9999"
+		port = "9876"
 	}
 	qbtURL = os.Getenv("QBT_URL")
 	if qbtURL == "" {
@@ -42,7 +42,7 @@ func main() {
 
 	skipAuth = detectSkipAuth()
 	if skipAuth {
-		log.Printf("qBittorrent auth bypass detected, SID validation disabled")
+		log.Printf("qBittorrent localhost auth enabled, using passthrough mode")
 	}
 
 	http.HandleFunc("/health", withLogging(handleHealth))

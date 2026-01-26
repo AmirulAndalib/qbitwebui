@@ -31,9 +31,9 @@ RUN ARCH=$(uname -m) && \
 
 COPY --from=builder /build/net-agent /usr/local/bin/net-agent
 
-ENV PORT=9999
+ENV PORT=9876
 ENV QBT_URL=http://localhost:8080
 
-EXPOSE 9999
+EXPOSE 9876
 
 ENTRYPOINT ["/usr/local/bin/net-agent"]

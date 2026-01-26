@@ -138,7 +138,7 @@ proxy.all('/:id/qbt/*', async (c) => {
 
 function deriveAgentUrl(qbtUrl: string): string {
 	const url = new URL(qbtUrl)
-	url.port = '9999'
+	url.port = '9876'
 	return url.origin
 }
 

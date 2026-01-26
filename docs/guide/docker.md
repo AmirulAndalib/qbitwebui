@@ -77,7 +77,7 @@ services:
       - "8080:8080"      # qBittorrent WebUI
       - "6881:6881"      # BitTorrent TCP
       - "6881:6881/udp"  # BitTorrent UDP
-      - "9999:9999"      # Network Agent
+      - "9876:9876"      # Network Agent
     restart: unless-stopped
 
   net-agent:
@@ -129,7 +129,7 @@ services:
       - "8080:8080"      # qBittorrent WebUI
       - "6881:6881"      # BitTorrent
       - "6881:6881/udp"
-      - "9999:9999"      # Network Agent
+      - "9876:9876"      # Network Agent
     restart: unless-stopped
 
   qbittorrent:
@@ -328,7 +328,7 @@ services:
 | Port | Service |
 |------|---------|
 | `3000` | qbitwebui web interface |
-| `9999` | Network agent (exposed through qBittorrent container) |
+| `9876` | Network agent (exposed through qBittorrent container) |
 
 ## Health Check
 

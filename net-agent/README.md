@@ -12,7 +12,7 @@ services:
     image: linuxserver/qbittorrent
     ports:
       - "8080:8080"
-      - "9999:9999"  # net-agent port
+      - "9876:9876"  # net-agent port
 
   net-agent:
     image: ghcr.io/mac-torreon/qbitwebui-agent:latest
@@ -45,7 +45,7 @@ The agent validates the SID by calling qBittorrent's API. If qBittorrent has aut
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `PORT` | `9999` | Port to listen on |
+| `PORT` | `9876` | Port to listen on |
 | `QBT_URL` | `http://localhost:8080` | qBittorrent WebUI URL for auth validation |
 | `ALLOW_SELF_SIGNED_CERTS` | `false` | Accept self-signed TLS certificates for qBittorrent |
 

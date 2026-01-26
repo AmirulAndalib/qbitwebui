@@ -266,7 +266,7 @@ export function NetworkTools({ instances }: Props) {
 				>
 					<Activity className="w-4 h-4 shrink-0" style={{ color: 'var(--error)' }} />
 					<span style={{ color: 'var(--error)' }}>
-						Cannot connect to agent on port 9999. Ensure net-agent is running on the qBittorrent host.
+						Agent not reachable at port 9876. Ensure net-agent is running on the qBittorrent host.
 					</span>
 				</div>
 			)}

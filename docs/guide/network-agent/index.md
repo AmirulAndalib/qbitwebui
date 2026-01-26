@@ -34,7 +34,7 @@ services:
     container_name: qbittorrent
     ports:
       - "8080:8080"
-      - "9999:9999"  # Agent port
+      - "9876:9876"  # Agent port
     volumes:
       - ./config:/config
       - ./downloads:/downloads
@@ -56,40 +56,61 @@ services:
 ```yaml
 services:
   gluetun:
-    image: qmcgaw/gluetun:latest
+    image: qmcgaw/gluetun
     container_name: gluetun
     cap_add:
       - NET_ADMIN
     devices:
       - /dev/net/tun:/dev/net/tun
+    ports:
+      - "8080:8080"
+      - "9876:9876"
+    volumes:
+      - ./gluetun:/gluetun
     environment:
       - VPN_SERVICE_PROVIDER=your-provider
       - VPN_TYPE=wireguard
       # ... your VPN config
-    ports:
-      - "8080:8080"
-      - "9999:9999"
+    healthcheck:
+      test: ping -c 1 1.1.1.1 || exit 1
+      interval: 20s
+      timeout: 10s
+      retries: 5
     restart: unless-stopped
 
   qbittorrent:
-    image: linuxserver/qbittorrent:latest
+    image: lscr.io/linuxserver/qbittorrent:latest
     container_name: qbittorrent
-    network_mode: "service:gluetun"
-    volumes:
-      - ./config:/config
-      - ./downloads:/downloads
+    network_mode: service:gluetun
     depends_on:
-      - gluetun
+      gluetun:
+        condition: service_healthy
+        restart: true
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+    volumes:
+      - ./qbittorrent:/config
+      - ./downloads:/downloads
+    healthcheck:
+      test: ping -c 1 1.1.1.1 || exit 1
+      interval: 60s
+      retries: 3
+      start_period: 20s
+      timeout: 10s
     restart: unless-stopped
 
   net-agent:
-    image: ghcr.io/Maciejonos/qbitwebui-agent:latest
+    image: ghcr.io/maciejonos/qbitwebui-agent:latest
     container_name: net-agent
-    network_mode: "service:gluetun"
+    network_mode: service:gluetun
     environment:
       - QBT_URL=http://localhost:8080
     depends_on:
-      - qbittorrent
+      qbittorrent:
+        condition: service_healthy
+        restart: true
     restart: unless-stopped
 ```
 
@@ -110,7 +131,7 @@ The **Network Tools** section will appear in the Tools menu.
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `PORT` | `9999` | Port the agent listens on |
+| `PORT` | `9876` | Port the agent listens on |
 | `QBT_URL` | `http://localhost:8080` | qBittorrent WebUI URL for auth |
 | `ALLOW_SELF_SIGNED_CERTS` | `false` | Accept self-signed TLS certificates |
 
@@ -147,13 +168,13 @@ The terminal supports these commands:
    docker logs net-agent
    ```
 
-3. **Verify port is exposed**: Port 9999 must be exposed on the container that owns the network:
+3. **Verify port is exposed**: Port 9876 must be exposed on the container that owns the network:
    - Without VPN: on qBittorrent container
    - With VPN: on Gluetun container
 
 4. **Test connectivity**:
    ```bash
-   curl http://your-host:9999/health
+   curl http://your-host:9876/health
    # Should return: {"status":"ok"}
    ```
 

@@ -344,12 +344,12 @@ instances.post('/test-agent', async (c) => {
 
 	try {
 		const agentUrl = new URL(body.url)
-		agentUrl.port = '9999'
+		agentUrl.port = '9876'
 		const res = await fetchWithTls(`${agentUrl.origin}/health`, { signal: AbortSignal.timeout(5000) })
 		if (res.ok) return c.json({ success: true })
 		return c.json({ error: 'Agent not responding' }, 400)
 	} catch {
-		return c.json({ error: 'Agent not reachable at port 9999' }, 400)
+		return c.json({ error: 'Agent not reachable at port 9876' }, 400)
 	}
 })
 
