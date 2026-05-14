@@ -191,7 +191,7 @@ export function NetworkTools({ instances }: Props) {
 					Enable net-agent on an instance to run network diagnostics from your qBittorrent host
 				</p>
 				<a
-					href="https://maciejonos.github.io/qbitwebui/guide/network-agent/"
+					href="https://mkbula.github.io/qbitwebui/guide/network-agent/"
 					target="_blank"
 					rel="noopener noreferrer"
 					className="px-4 py-2 rounded-lg text-sm font-medium transition-colors"

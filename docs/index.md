@@ -9,7 +9,7 @@ hero:
       link: /guide/getting-started
     - theme: alt
       text: GitHub
-      link: https://github.com/Maciejonos/qbitwebui
+      link: https://github.com/mkbula/qbitwebui
 features:
   - title: Multi-Instance
     details: Manage multiple qBittorrent instances from one dashboard

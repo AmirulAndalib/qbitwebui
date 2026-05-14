@@ -41,7 +41,7 @@ services:
     restart: unless-stopped
 
   net-agent:
-    image: ghcr.io/Maciejonos/qbitwebui-agent:latest
+    image: ghcr.io/mkbula/qbitwebui-agent:latest
     container_name: net-agent
     network_mode: "service:qbittorrent"
     environment:
@@ -102,7 +102,7 @@ services:
     restart: unless-stopped
 
   net-agent:
-    image: ghcr.io/maciejonos/qbitwebui-agent:latest
+    image: ghcr.io/mkbula/qbitwebui-agent:latest
     container_name: net-agent
     network_mode: service:gluetun
     environment:

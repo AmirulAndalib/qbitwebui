@@ -5,12 +5,12 @@
 
 Built with [React](https://react.dev/), [Hono](https://hono.dev/), and [Bun](https://bun.sh/)
 
-[![GitHub stars](https://img.shields.io/github/stars/Maciejonos/qbitwebui?style=for-the-badge&labelColor=101418&color=9ccbfb)](https://github.com/Maciejonos/qbitwebui/stargazers)
-[![GitHub License](https://img.shields.io/github/license/Maciejonos/qbitwebui?style=for-the-badge&labelColor=101418&color=abedd5)](https://github.com/Maciejonos/qbitwebui/blob/master/LICENSE)
-[![GitHub release](https://img.shields.io/github/v/release/Maciejonos/qbitwebui?style=for-the-badge&labelColor=101418&color=b9c8da)](https://github.com/Maciejonos/qbitwebui/releases)
-[![Docker Build](https://img.shields.io/github/actions/workflow/status/Maciejonos/qbitwebui/docker.yml?style=for-the-badge&labelColor=101418&color=4EB329&label=build)](https://github.com/Maciejonos/qbitwebui/actions)
+[![GitHub stars](https://img.shields.io/github/stars/mkbula/qbitwebui?style=for-the-badge&labelColor=101418&color=9ccbfb)](https://github.com/mkbula/qbitwebui/stargazers)
+[![GitHub License](https://img.shields.io/github/license/mkbula/qbitwebui?style=for-the-badge&labelColor=101418&color=abedd5)](https://github.com/mkbula/qbitwebui/blob/master/LICENSE)
+[![GitHub release](https://img.shields.io/github/v/release/mkbula/qbitwebui?style=for-the-badge&labelColor=101418&color=b9c8da)](https://github.com/mkbula/qbitwebui/releases)
+[![Docker Build](https://img.shields.io/github/actions/workflow/status/mkbula/qbitwebui/docker.yml?style=for-the-badge&labelColor=101418&color=4EB329&label=build)](https://github.com/mkbula/qbitwebui/actions)
 
-**[Documentation](https://maciejonos.github.io/qbitwebui/)** · **[Docker Examples](https://maciejonos.github.io/qbitwebui/guide/docker)** · **[All Features](https://maciejonos.github.io/qbitwebui/guide/features)**
+**[Documentation](https://mkbula.github.io/qbitwebui/)** · **[Docker Examples](https://mkbula.github.io/qbitwebui/guide/docker)** · **[All Features](https://mkbula.github.io/qbitwebui/guide/features)**
 
 </div>
 
@@ -32,7 +32,7 @@ Built with [React](https://react.dev/), [Hono](https://hono.dev/), and [Bun](htt
 
 ## Features
 
-See [features section](https://maciejonos.github.io/qbitwebui/guide/features) for more details.
+See [features section](https://mkbula.github.io/qbitwebui/guide/features) for more details.
 
 - **Multi-instance** - Manage multiple qBittorrent instances from one dashboard
 - **Cross seed** - Automatic cross seed directly in qbitwebui. (experimental)
@@ -46,16 +46,16 @@ See [features section](https://maciejonos.github.io/qbitwebui/guide/features) fo
 - **Themes** - Multiple color themes included
 - **File browser** - Browse and download files from your downloads directory
 - **RSS management** - Define rules, add RSS feeds, manage folders
-- **Network agent** - Speedtest, IP check, DNS diagnostics - [setup instructions](https://maciejonos.github.io/qbitwebui/guide/network-agent)
+- **Network agent** - Speedtest, IP check, DNS diagnostics - [setup instructions](https://mkbula.github.io/qbitwebui/guide/network-agent)
 
 ## Docker
 
-See [Docker section](https://maciejonos.github.io/qbitwebui/guide/docker) for all setup options.
+See [Docker section](https://mkbula.github.io/qbitwebui/guide/docker) for all setup options.
 
 ```yaml
 services:
   qbitwebui:
-    image: ghcr.io/maciejonos/qbitwebui:latest
+    image: ghcr.io/mkbula/qbitwebui:latest
     ports:
       - "3000:3000"
     environment:
@@ -93,7 +93,7 @@ React 19, TypeScript, Tailwind CSS v4, Vite, TanStack Query, Hono, SQLite, Bun
 
 ## Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=Maciejonos/qbitwebui&type=date&legend=top-left)](https://www.star-history.com/#Maciejonos/qbitwebui&type=date&legend=top-left)
+[![Star History Chart](https://api.star-history.com/svg?repos=mkbula/qbitwebui&type=date&legend=top-left)](https://www.star-history.com/#mkbula/qbitwebui&type=date&legend=top-left)
 ## Credits
 
 Big thanks to [cross-seed](https://github.com/cross-seed/cross-seed). A huge chunk of Qbitwebui cross seed implementation is basically taken from cross-seed directly, or ported and slightly adjusted. Qbitwebui is of course in no way associated or endorsed by cross-seed.

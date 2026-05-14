@@ -783,7 +783,7 @@ export function InstanceManager({
 											<>
 												Enable net-agent (network diagnostics: IP info, speedtest, etc.){' '}
 												<a
-													href="https://maciejonos.github.io/qbitwebui/guide/network-agent/"
+													href="https://mkbula.github.io/qbitwebui/guide/network-agent/"
 													target="_blank"
 													rel="noopener noreferrer"
 													className="underline"

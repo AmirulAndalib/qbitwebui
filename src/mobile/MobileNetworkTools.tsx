@@ -207,7 +207,7 @@ export function MobileNetworkTools({ instances, onBack }: Props) {
 						Enable net-agent on an instance to run network diagnostics
 					</p>
 					<a
-						href="https://maciejonos.github.io/qbitwebui/guide/network-agent/"
+						href="https://mkbula.github.io/qbitwebui/guide/network-agent/"
 						target="_blank"
 						rel="noopener noreferrer"
 						className="px-5 py-2.5 rounded-xl text-sm font-medium"

@@ -11,7 +11,7 @@ export default defineConfig({
 		logo: '/logo.svg',
 		nav: [
 			{ text: 'Guide', link: '/guide/getting-started' },
-			{ text: 'GitHub', link: 'https://github.com/Maciejonos/qbitwebui' },
+			{ text: 'GitHub', link: 'https://github.com/mkbula/qbitwebui' },
 		],
 		sidebar: [
 			{
@@ -28,7 +28,7 @@ export default defineConfig({
 				items: [{ text: 'Network Agent', link: '/guide/network-agent/' }],
 			},
 		],
-		socialLinks: [{ icon: 'github', link: 'https://github.com/Maciejonos/qbitwebui' }],
+		socialLinks: [{ icon: 'github', link: 'https://github.com/mkbula/qbitwebui' }],
 		search: { provider: 'local' },
 		footer: { message: 'Released under the MIT License.' },
 	},

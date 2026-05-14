@@ -49,7 +49,7 @@ export function MobileCrossSeedManager({ instances, onBack }: Props): ReactNode 
 					Cross-Seed
 				</h1>
 				<a
-					href="https://github.com/Maciejonos/qbitwebui/issues"
+					href="https://github.com/mkbula/qbitwebui/issues"
 					target="_blank"
 					rel="noopener noreferrer"
 					className="px-2 py-1 rounded-lg border text-xs"

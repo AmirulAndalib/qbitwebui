@@ -22,7 +22,7 @@ export function useUpdateCheck() {
 	const { data, isLoading, error } = useQuery({
 		queryKey: ['update-check'],
 		queryFn: async (): Promise<GitHubRelease> => {
-			const res = await fetch('https://api.github.com/repos/Maciejonos/qbitwebui/releases/latest')
+			const res = await fetch('https://api.github.com/repos/mkbula/qbitwebui/releases/latest')
 			if (!res.ok) throw new Error('Failed to fetch')
 			return res.json()
 		},

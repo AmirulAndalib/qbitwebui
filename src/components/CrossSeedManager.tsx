@@ -68,7 +68,7 @@ export function CrossSeedManager({ instances }: Props) {
 	return (
 		<div className="flex flex-col h-full relative">
 			<a
-				href="https://github.com/Maciejonos/qbitwebui/issues"
+				href="https://github.com/mkbula/qbitwebui/issues"
 				target="_blank"
 				rel="noopener noreferrer"
 				className="absolute top-0 right-0 px-3 py-2 rounded-lg border text-xs"
