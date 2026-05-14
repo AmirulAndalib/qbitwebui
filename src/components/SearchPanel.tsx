@@ -99,13 +99,16 @@ export function SearchPanel() {
 
 	useEffect(() => {
 		if (grabInstance) {
-			setLoadingCategories(true)
-			getCategories(grabInstance)
-				.then(setGrabCategories)
-				.catch(() => setGrabCategories({}))
-				.finally(() => setLoadingCategories(false))
+			const inst = grabInstance
+			queueMicrotask(() => {
+				setLoadingCategories(true)
+				getCategories(inst)
+					.then(setGrabCategories)
+					.catch(() => setGrabCategories({}))
+					.finally(() => setLoadingCategories(false))
+			})
 		} else {
-			setGrabCategories({})
+			queueMicrotask(() => setGrabCategories({}))
 		}
 	}, [grabInstance])
 

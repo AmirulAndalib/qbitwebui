@@ -44,41 +44,44 @@ export function useCrossSeed(instances: Instance[]) {
 
 	useEffect(() => {
 		if (!selectedInstance) return
-		setLoading(true)
-		setError('')
-		Promise.all([
-			getCrossSeedConfig(selectedInstance),
-			getInstanceStatus(selectedInstance),
-			getCacheStats(selectedInstance),
-		])
-			.then(([cfg, st, cs]) => {
-				setConfig(cfg)
-				setStatus(st)
-				setCacheStats(cs)
-			})
-			.catch((e) => setError(e.message))
-			.finally(() => setLoading(false))
+		const inst = selectedInstance
+		queueMicrotask(() => {
+			setLoading(true)
+			setError('')
+			Promise.all([getCrossSeedConfig(inst), getInstanceStatus(inst), getCacheStats(inst)])
+				.then(([cfg, st, cs]) => {
+					setConfig(cfg)
+					setStatus(st)
+					setCacheStats(cs)
+				})
+				.catch((e) => setError(e.message))
+				.finally(() => setLoading(false))
+		})
 	}, [selectedInstance])
 
 	useEffect(() => {
 		if (!selectedInstance || !config?.integration_id) {
-			setAvailableIndexers([])
+			queueMicrotask(() => setAvailableIndexers([]))
 			return
 		}
-		getIndexers(selectedInstance, config.integration_id)
-			.then((indexers) => {
-				setAvailableIndexers(indexers)
-				const validIds = new Set(indexers.map((i) => i.id))
-				setConfig((c) => {
-					if (!c) return c
-					const cleanedIds = c.indexer_ids.filter((id) => validIds.has(id))
-					if (cleanedIds.length !== c.indexer_ids.length) {
-						return { ...c, indexer_ids: cleanedIds }
-					}
-					return c
+		const inst = selectedInstance
+		const integrationId = config.integration_id
+		queueMicrotask(() => {
+			getIndexers(inst, integrationId)
+				.then((indexers) => {
+					setAvailableIndexers(indexers)
+					const validIds = new Set(indexers.map((i) => i.id))
+					setConfig((c) => {
+						if (!c) return c
+						const cleanedIds = c.indexer_ids.filter((id) => validIds.has(id))
+						if (cleanedIds.length !== c.indexer_ids.length) {
+							return { ...c, indexer_ids: cleanedIds }
+						}
+						return c
+					})
 				})
-			})
-			.catch(() => setAvailableIndexers([]))
+				.catch(() => setAvailableIndexers([]))
+		})
 	}, [selectedInstance, config?.integration_id])
 
 	useEffect(() => {
@@ -102,7 +105,8 @@ export function useCrossSeed(instances: Instance[]) {
 	}, [selectedInstance])
 
 	useEffect(() => {
-		if (!status?.running) setStopping(false)
+		if (status?.running) return
+		queueMicrotask(() => setStopping(false))
 	}, [status?.running])
 
 	useEffect(() => {

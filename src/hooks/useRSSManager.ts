@@ -150,13 +150,14 @@ export function useRSSManager({ instances, onViewChange }: UseRSSManagerOptions)
 	}, [selectedInstance])
 
 	useEffect(() => {
-		if (selectedInstance) {
+		if (!selectedInstance) return
+		queueMicrotask(() => {
 			setLoading(true)
 			setError('')
 			Promise.all([loadFeeds(), loadRules(), loadCategories()]).finally(() => {
 				if (mountedRef.current) setLoading(false)
 			})
-		}
+		})
 	}, [selectedInstance, loadFeeds, loadRules, loadCategories])
 
 	function selectRule(ruleName: string | null) {

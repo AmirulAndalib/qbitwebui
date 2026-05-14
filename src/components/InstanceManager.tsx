@@ -162,24 +162,25 @@ export function InstanceManager({
 	}, [])
 
 	useEffect(() => {
-		loadInstances()
+		queueMicrotask(loadInstances)
 	}, [loadInstances])
 
 	useEffect(() => {
 		if (instances.length > 0) {
-			loadStats()
+			queueMicrotask(loadStats)
 			const interval = setInterval(loadStats, 2000)
 			return () => clearInterval(interval)
 		}
 	}, [instances.length, loadStats])
 
 	useEffect(() => {
-		if (stats.length > 0) {
-			const totalDl = stats.reduce((a, s) => a + s.dlSpeed, 0)
-			const totalUp = stats.reduce((a, s) => a + s.upSpeed, 0)
+		if (stats.length === 0) return
+		const totalDl = stats.reduce((a, s) => a + s.dlSpeed, 0)
+		const totalUp = stats.reduce((a, s) => a + s.upSpeed, 0)
+		queueMicrotask(() => {
 			setDlHistory((prev) => [...prev.slice(-4), totalDl])
 			setUpHistory((prev) => [...prev.slice(-4), totalUp])
-		}
+		})
 	}, [stats])
 
 	async function handleSubmit(e: React.FormEvent) {

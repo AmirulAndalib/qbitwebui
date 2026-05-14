@@ -97,22 +97,27 @@ export function MobileSearchPanel({ instances, onBack }: Props) {
 
 	useEffect(() => {
 		if (!grabInstance) {
-			setGrabCategories({})
+			queueMicrotask(() => setGrabCategories({}))
 			return
 		}
-		setLoadingCategories(true)
-		getCategories(grabInstance)
-			.then(setGrabCategories)
-			.catch(() => setGrabCategories({}))
-			.finally(() => setLoadingCategories(false))
+		const inst = grabInstance
+		queueMicrotask(() => {
+			setLoadingCategories(true)
+			getCategories(inst)
+				.then(setGrabCategories)
+				.catch(() => setGrabCategories({}))
+				.finally(() => setLoadingCategories(false))
+		})
 	}, [grabInstance])
 
 	useEffect(() => {
 		if (!showGrabSheet) return
-		setGrabCategory('')
-		setGrabSavepath('')
-		setGrabDownloadPath('')
-		setGrabInstance(instances.length === 1 ? instances[0].id : null)
+		queueMicrotask(() => {
+			setGrabCategory('')
+			setGrabSavepath('')
+			setGrabDownloadPath('')
+			setGrabInstance(instances.length === 1 ? instances[0].id : null)
+		})
 	}, [showGrabSheet, instances])
 
 	async function handleSearch(e: React.FormEvent) {

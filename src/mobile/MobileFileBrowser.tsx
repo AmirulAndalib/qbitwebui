@@ -69,18 +69,23 @@ export function MobileFileBrowser({ onBack }: Props) {
 	}, [path])
 
 	useEffect(() => {
-		loadFiles()
-		setSelected(new Set())
-		setSelectionMode(false)
+		queueMicrotask(() => {
+			setSelected(new Set())
+			setSelectionMode(false)
+			loadFiles()
+		})
 	}, [loadFiles])
 
 	useEffect(() => {
 		if (!showFolderPicker) return
-		setPickerLoading(true)
-		listFiles(pickerPath)
-			.then((files) => setPickerFolders(files.filter((f) => f.isDirectory)))
-			.catch(() => setPickerFolders([]))
-			.finally(() => setPickerLoading(false))
+		const path = pickerPath
+		queueMicrotask(() => {
+			setPickerLoading(true)
+			listFiles(path)
+				.then((files) => setPickerFolders(files.filter((f) => f.isDirectory)))
+				.catch(() => setPickerFolders([]))
+				.finally(() => setPickerLoading(false))
+		})
 	}, [showFolderPicker, pickerPath])
 
 	function handleNavigate(name: string) {

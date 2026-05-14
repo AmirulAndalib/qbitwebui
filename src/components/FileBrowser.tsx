@@ -176,8 +176,10 @@ export function FileBrowser({ enabled }: Props) {
 
 	useEffect(() => {
 		if (!enabled) return
-		loadFiles()
-		setSelected(new Set())
+		queueMicrotask(() => {
+			setSelected(new Set())
+			loadFiles()
+		})
 	}, [loadFiles, enabled])
 
 	if (!enabled) {

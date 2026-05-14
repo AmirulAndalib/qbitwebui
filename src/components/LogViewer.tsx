@@ -68,14 +68,13 @@ export function LogViewer({ instances }: Props) {
 	)
 
 	useEffect(() => {
-		if (tab === 'main') {
-			lastMainIdRef.current = -1
-			setMainLogs([])
-		} else {
-			lastPeerIdRef.current = -1
-			setPeerLogs([])
-		}
-		if (selectedInstance) fetchLogs()
+		if (tab === 'main') lastMainIdRef.current = -1
+		else lastPeerIdRef.current = -1
+		queueMicrotask(() => {
+			if (tab === 'main') setMainLogs([])
+			else setPeerLogs([])
+			if (selectedInstance) fetchLogs()
+		})
 	}, [selectedInstance, tab, filters, fetchLogs])
 
 	useEffect(() => {
