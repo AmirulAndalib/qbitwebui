@@ -1,5 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { ChevronRight } from 'lucide-react'
+import { PathInput } from './ui/PathInput'
+import { usePathHistory } from '../hooks/usePathHistory'
 import {
 	useCategories,
 	useTags,
@@ -34,6 +36,7 @@ export function ContextMenu({ x, y, torrents, onClose }: Props) {
 	const [inputValue, setInputValue] = useState('')
 	const ref = useRef<HTMLDivElement>(null)
 	const inputRef = useRef<HTMLInputElement>(null)
+	const { addPath } = usePathHistory()
 
 	const { data: categories = {} } = useCategories()
 	const { data: tags = [] } = useTags()
@@ -135,13 +138,13 @@ export function ContextMenu({ x, y, torrents, onClose }: Props) {
 		}
 
 		if (editorMode === 'savePath') {
-			setLocationMutation.mutate({ hashes, location: value })
+			setLocationMutation.mutate({ hashes, location: value }, { onSuccess: () => addPath(value) })
 			onClose()
 			return
 		}
 
 		if (editorMode === 'downloadPath') {
-			setDownloadPathMutation.mutate({ hashes, downloadPath: value })
+			setDownloadPathMutation.mutate({ hashes, downloadPath: value }, { onSuccess: () => addPath(value) })
 			onClose()
 		}
 	}
@@ -198,19 +201,36 @@ export function ContextMenu({ x, y, torrents, onClose }: Props) {
 				<div className="text-xs font-medium mb-2" style={{ color: 'var(--text-muted)' }}>
 					{editorTitle}
 				</div>
-				<input
-					ref={inputRef}
-					type="text"
-					value={inputValue}
-					onChange={(e) => setInputValue(e.target.value)}
-					placeholder={editorPlaceholder}
-					onKeyDown={(e) => {
-						if (e.key === 'Enter') handleEditorSubmit()
-						if (e.key === 'Escape') onClose()
-					}}
-					className="w-full px-3 py-2 rounded-lg border text-sm mb-2"
-					style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border)', color: 'var(--text-primary)' }}
-				/>
+				{editorMode === 'rename' ? (
+					<input
+						ref={inputRef}
+						type="text"
+						value={inputValue}
+						onChange={(e) => setInputValue(e.target.value)}
+						placeholder={editorPlaceholder}
+						onKeyDown={(e) => {
+							if (e.key === 'Enter') handleEditorSubmit()
+							if (e.key === 'Escape') onClose()
+						}}
+						className="w-full px-3 py-2 rounded-lg border text-sm mb-2"
+						style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border)', color: 'var(--text-primary)' }}
+					/>
+				) : (
+					<div className="mb-2">
+						<PathInput
+							inputRef={inputRef}
+							value={inputValue}
+							onChange={setInputValue}
+							placeholder={editorPlaceholder}
+							onKeyDown={(e) => {
+								if (e.key === 'Enter') handleEditorSubmit()
+								if (e.key === 'Escape') onClose()
+							}}
+							className="w-full px-3 py-2 rounded-lg border text-sm"
+							style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border)', color: 'var(--text-primary)' }}
+						/>
+					</div>
+				)}
 				<div className="flex gap-2">
 					<button
 						onClick={onClose}
@@ -337,4 +357,5 @@ function MenuItem({
 		</button>
 	)
 }
+
 

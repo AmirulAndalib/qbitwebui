@@ -1,5 +1,7 @@
 import { useState, useEffect, Fragment } from 'react'
 import { Plus, Trash2, ChevronDown, Filter, X } from 'lucide-react'
+import { PathInput } from './ui/PathInput'
+import { usePathHistory } from '../hooks/usePathHistory'
 import {
 	getIntegrations,
 	createIntegration,
@@ -34,6 +36,7 @@ function formatAge(dateStr: string): string {
 export function SearchPanel() {
 	const [integrations, setIntegrations] = useState<Integration[]>([])
 	const [instances, setInstances] = useState<Instance[]>([])
+	const { addPath } = usePathHistory()
 	const [selectedIntegration, setSelectedIntegration] = useState<Integration | null>(null)
 	const [indexers, setIndexers] = useState<Indexer[]>([])
 	const [prowlarrCategories, setProwlarrCategories] = useState<ProwlarrCategory[]>([])
@@ -212,8 +215,12 @@ export function SearchPanel() {
 		setGrabResult(null)
 		const options: { category?: string; savepath?: string; downloadPath?: string } = {}
 		if (grabCategory) options.category = grabCategory
-		if (grabSavepath.trim()) options.savepath = grabSavepath.trim()
-		if (grabDownloadPath.trim()) options.downloadPath = grabDownloadPath.trim()
+		if (grabSavepath.trim()) {
+			options.savepath = grabSavepath.trim()
+		}
+		if (grabDownloadPath.trim()) {
+			options.downloadPath = grabDownloadPath.trim()
+		}
 		try {
 			await grabRelease(
 				selectedIntegration.id,
@@ -226,6 +233,8 @@ export function SearchPanel() {
 				grabInstance,
 				Object.keys(options).length > 0 ? options : undefined
 			)
+			if (grabSavepath.trim()) addPath(grabSavepath.trim())
+			if (grabDownloadPath.trim()) addPath(grabDownloadPath.trim())
 			setGrabResult({ guid: grabModal.guid, success: true })
 			closeGrabModal()
 			setTimeout(() => setGrabResult(null), 3000)
@@ -1053,10 +1062,9 @@ export function SearchPanel() {
 								>
 									Save Path
 								</label>
-								<input
-									type="text"
+								<PathInput
 									value={grabSavepath}
-									onChange={(e) => setGrabSavepath(e.target.value)}
+									onChange={setGrabSavepath}
 									disabled={!grabInstance}
 									placeholder="Default"
 									className="w-full px-3 py-2 rounded-lg border text-sm disabled:opacity-50"
@@ -1074,10 +1082,9 @@ export function SearchPanel() {
 								>
 									Download Path
 								</label>
-								<input
-									type="text"
+								<PathInput
 									value={grabDownloadPath}
-									onChange={(e) => setGrabDownloadPath(e.target.value)}
+									onChange={setGrabDownloadPath}
 									disabled={!grabInstance}
 									placeholder="Default"
 									className="w-full px-3 py-2 rounded-lg border text-sm disabled:opacity-50"
@@ -1112,4 +1119,5 @@ export function SearchPanel() {
 		</div>
 	)
 }
+
 

@@ -24,6 +24,8 @@ import {
 	useRemoveTrackers,
 } from '../hooks/useTorrentDetails'
 import { useSetTorrentDownloadPath, useSetTorrentLocation } from '../hooks/useTorrents'
+import { usePathHistory } from '../hooks/usePathHistory'
+import { PathInput } from './ui/PathInput'
 import { formatSize, formatSpeed, formatDate, formatDuration, formatEta } from '../utils/format'
 import type { Tracker, Peer } from '../types/torrentDetails'
 import { buildFileTree, flattenVisibleNodes, getInitialExpanded } from '../utils/fileTree'
@@ -148,6 +150,7 @@ function GeneralTab({ hash, category, tags }: { hash: string; category: string; 
 	const { data: p, isLoading } = useTorrentProperties(hash)
 	const setLocationMutation = useSetTorrentLocation()
 	const setDownloadPathMutation = useSetTorrentDownloadPath()
+	const { addPath } = usePathHistory()
 	if (isLoading) return <LoadingSkeleton />
 	if (!p) return <EmptyState message="Failed to load" />
 	const properties = p
@@ -173,13 +176,13 @@ function GeneralTab({ hash, category, tags }: { hash: string; category: string; 
 		if (!trimmed) return
 
 		if (editorMode === 'savePath') {
-			setLocationMutation.mutate({ hashes: [hash], location: trimmed })
+			setLocationMutation.mutate({ hashes: [hash], location: trimmed }, { onSuccess: () => addPath(trimmed) })
 			setEditorMode(null)
 			return
 		}
 
 		if (editorMode === 'downloadPath') {
-			setDownloadPathMutation.mutate({ hashes: [hash], downloadPath: trimmed })
+			setDownloadPathMutation.mutate({ hashes: [hash], downloadPath: trimmed }, { onSuccess: () => addPath(trimmed) })
 			setEditorMode(null)
 		}
 	}
@@ -296,10 +299,9 @@ function GeneralTab({ hash, category, tags }: { hash: string; category: string; 
 						<div className="text-[9px] uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>
 							{editorMode === 'savePath' ? 'Change Save Path' : 'Change Download Path'}
 						</div>
-						<input
-							type="text"
+						<PathInput
 							value={inputValue}
-							onChange={(e) => setInputValue(e.target.value)}
+							onChange={setInputValue}
 							onKeyDown={(e) => {
 								if (e.key === 'Enter') handlePathSave()
 								if (e.key === 'Escape') setEditorMode(null)
