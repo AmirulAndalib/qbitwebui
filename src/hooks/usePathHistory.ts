@@ -2,6 +2,7 @@ import { useCallback } from 'react'
 
 const STORAGE_KEY = 'qbit-path-history'
 const MAX_ENTRIES = 50
+const MAX_SUGGESTIONS = 5
 
 function getHistory(): string[] {
 	try {
@@ -29,9 +30,9 @@ export function usePathHistory() {
 
 	const getSuggestions = useCallback((input: string): string[] => {
 		const history = getHistory()
-		if (!input) return history.slice(0, 5)
+		if (!input) return history.slice(0, MAX_SUGGESTIONS)
 		const lower = input.toLowerCase()
-		return history.filter((p) => p.toLowerCase().includes(lower))
+		return history.filter((p) => p.toLowerCase().includes(lower)).slice(0, MAX_SUGGESTIONS)
 	}, [])
 
 	return { addPath, getSuggestions }
