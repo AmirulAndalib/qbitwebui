@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback, type FC } from 'react'
+import { useState, useRef, type FC } from 'react'
 import { createPortal } from 'react-dom'
 import {
 	LayoutGrid,
@@ -19,7 +19,6 @@ import {
 import type { TorrentFilter } from '../types/qbittorrent'
 import type { Category } from '../api/qbittorrent'
 import type { ColumnDef } from './columns'
-import { useClickOutside } from '../hooks/useClickOutside'
 
 const filters: { value: TorrentFilter; label: string; Icon: FC<{ className?: string; strokeWidth?: number }> }[] = [
 	{ value: 'all', label: 'All', Icon: LayoutGrid },
@@ -82,21 +81,32 @@ interface DropdownProps<T extends string> {
 	onChange: (v: T | null) => void
 	options: { value: T; label: string; count?: number }[]
 	placeholder: string
+	allLabel: string
 	Icon: FC<{ className?: string; strokeWidth?: number }>
 }
 
-function Dropdown<T extends string>({ value, onChange, options, placeholder, Icon }: DropdownProps<T>) {
+function Dropdown<T extends string>({ value, onChange, options, placeholder, allLabel, Icon }: DropdownProps<T>) {
 	const [open, setOpen] = useState(false)
-	const ref = useRef<HTMLDivElement>(null)
-	const close = useCallback(() => setOpen(false), [])
-	useClickOutside(ref, close)
+	const [pos, setPos] = useState<{ top: number; left: number } | null>(null)
+	const buttonRef = useRef<HTMLButtonElement>(null)
 
 	const selected = options.find((o) => o.value === value)
 
+	function handleToggle() {
+		if (open) {
+			setOpen(false)
+			return
+		}
+		const rect = buttonRef.current?.getBoundingClientRect()
+		if (rect) setPos({ top: rect.bottom + 4, left: rect.left })
+		setOpen(true)
+	}
+
 	return (
-		<div ref={ref} className="relative">
+		<>
 			<button
-				onClick={() => setOpen(!open)}
+				ref={buttonRef}
+				onClick={handleToggle}
 				title={selected?.label ?? placeholder}
 				className="flex items-center gap-1.5 px-2 py-1 rounded transition-all duration-150"
 				style={{
@@ -107,49 +117,60 @@ function Dropdown<T extends string>({ value, onChange, options, placeholder, Ico
 				<Icon className="w-3.5 h-3.5" strokeWidth={2} />
 				<span className="text-xs font-medium max-w-[60px] truncate">{selected?.label ?? placeholder}</span>
 			</button>
-			{open && (
-				<div
-					className="absolute top-full left-0 mt-1 min-w-[160px] max-h-[300px] overflow-auto rounded border shadow-xl z-[100]"
-					style={{ backgroundColor: 'var(--bg-tertiary)', borderColor: 'var(--border)' }}
-				>
-					<button
-						onClick={() => {
-							onChange(null)
-							setOpen(false)
-						}}
-						className="w-full flex items-center px-2.5 py-1.5 text-xs text-left transition-colors"
+			{open && pos && createPortal(
+				<>
+					<div onMouseDown={() => setOpen(false)} style={{ position: 'fixed', inset: 0, zIndex: 99 }} />
+					<div
+						className="min-w-[160px] max-h-[300px] overflow-auto rounded border shadow-xl"
 						style={{
-							color: !value ? 'var(--accent)' : 'var(--text-muted)',
-							backgroundColor: !value ? 'color-mix(in srgb, var(--accent) 10%, transparent)' : 'transparent',
+							position: 'fixed',
+							top: pos.top,
+							left: pos.left,
+							zIndex: 100,
+							backgroundColor: 'var(--bg-tertiary)',
+							borderColor: 'var(--border)',
 						}}
 					>
-						All {placeholder}s
-					</button>
-					{options.map((o) => (
 						<button
-							key={o.value}
 							onClick={() => {
-								onChange(o.value)
+								onChange(null)
 								setOpen(false)
 							}}
-							className="w-full flex items-center justify-between px-2.5 py-1.5 text-xs text-left transition-colors"
+							className="w-full flex items-center px-2.5 py-1.5 text-xs text-left transition-colors"
 							style={{
-								color: value === o.value ? 'var(--accent)' : 'var(--text-muted)',
-								backgroundColor:
-									value === o.value ? 'color-mix(in srgb, var(--accent) 10%, transparent)' : 'transparent',
+								color: !value ? 'var(--accent)' : 'var(--text-muted)',
+								backgroundColor: !value ? 'color-mix(in srgb, var(--accent) 10%, transparent)' : 'transparent',
 							}}
 						>
-							<span className="truncate">{o.label}</span>
-							{o.count !== undefined && (
-								<span style={{ color: 'var(--text-muted)' }} className="ml-2 text-xs">
-									{o.count}
-								</span>
-							)}
+							{allLabel}
 						</button>
-					))}
-				</div>
+						{options.map((o) => (
+							<button
+								key={o.value}
+								onClick={() => {
+									onChange(o.value)
+									setOpen(false)
+								}}
+								className="w-full flex items-center justify-between px-2.5 py-1.5 text-xs text-left transition-colors"
+								style={{
+									color: value === o.value ? 'var(--accent)' : 'var(--text-muted)',
+									backgroundColor:
+										value === o.value ? 'color-mix(in srgb, var(--accent) 10%, transparent)' : 'transparent',
+								}}
+							>
+								<span className="truncate">{o.label}</span>
+								{o.count !== undefined && (
+									<span style={{ color: 'var(--text-muted)' }} className="ml-2 text-xs">
+										{o.count}
+									</span>
+								)}
+							</button>
+						))}
+					</div>
+				</>,
+				document.body,
 			)}
-		</div>
+		</>
 	)
 }
 
@@ -160,65 +181,16 @@ interface CategoryDropdownProps {
 }
 
 export function CategoryDropdown({ value, onChange, categories }: CategoryDropdownProps) {
-	const [open, setOpen] = useState(false)
-	const ref = useRef<HTMLDivElement>(null)
-	const close = useCallback(() => setOpen(false), [])
-	useClickOutside(ref, close)
-
-	const names = Object.keys(categories)
-	const selected = names.find((n) => n === value)
-
+	const options = Object.keys(categories).map((name) => ({ value: name, label: name }))
 	return (
-		<div ref={ref} className="relative">
-			<button
-				onClick={() => setOpen(!open)}
-				title={selected ?? 'Category'}
-				className="flex items-center gap-1.5 px-2 py-1 rounded transition-all duration-150"
-				style={{
-					color: value ? 'var(--accent)' : 'var(--text-muted)',
-					backgroundColor: value ? 'color-mix(in srgb, var(--accent) 15%, transparent)' : 'transparent',
-				}}
-			>
-				<Folder className="w-3.5 h-3.5" strokeWidth={2} />
-				<span className="text-xs font-medium max-w-[60px] truncate">{selected ?? 'Category'}</span>
-			</button>
-			{open && (
-				<div
-					className="absolute top-full left-0 mt-1 min-w-[160px] max-h-[300px] overflow-auto rounded border shadow-xl z-[100]"
-					style={{ backgroundColor: 'var(--bg-tertiary)', borderColor: 'var(--border)' }}
-				>
-					<button
-						onClick={() => {
-							onChange(null)
-							setOpen(false)
-						}}
-						className="w-full flex items-center px-2.5 py-1.5 text-xs text-left transition-colors"
-						style={{
-							color: !value ? 'var(--accent)' : 'var(--text-muted)',
-							backgroundColor: !value ? 'color-mix(in srgb, var(--accent) 10%, transparent)' : 'transparent',
-						}}
-					>
-						All Categories
-					</button>
-					{names.map((name) => (
-						<button
-							key={name}
-							onClick={() => {
-								onChange(name)
-								setOpen(false)
-							}}
-							className="w-full px-2.5 py-1.5 text-xs text-left transition-colors truncate"
-							style={{
-								color: value === name ? 'var(--accent)' : 'var(--text-muted)',
-								backgroundColor: value === name ? 'color-mix(in srgb, var(--accent) 10%, transparent)' : 'transparent',
-							}}
-						>
-							{name}
-						</button>
-					))}
-				</div>
-			)}
-		</div>
+		<Dropdown
+			value={value}
+			onChange={onChange}
+			options={options}
+			placeholder="Category"
+			allLabel="All Categories"
+			Icon={Folder}
+		/>
 	)
 }
 
@@ -229,64 +201,9 @@ interface TagDropdownProps {
 }
 
 export function TagDropdown({ value, onChange, tags }: TagDropdownProps) {
-	const [open, setOpen] = useState(false)
-	const ref = useRef<HTMLDivElement>(null)
-	const close = useCallback(() => setOpen(false), [])
-	useClickOutside(ref, close)
-
-	const selected = tags.find((t) => t === value)
-
+	const options = tags.map((t) => ({ value: t, label: t }))
 	return (
-		<div ref={ref} className="relative">
-			<button
-				onClick={() => setOpen(!open)}
-				title={selected ?? 'Tag'}
-				className="flex items-center gap-1.5 px-2 py-1 rounded transition-all duration-150"
-				style={{
-					color: value ? 'var(--accent)' : 'var(--text-muted)',
-					backgroundColor: value ? 'color-mix(in srgb, var(--accent) 15%, transparent)' : 'transparent',
-				}}
-			>
-				<Tag className="w-3.5 h-3.5" strokeWidth={2} />
-				<span className="text-xs font-medium max-w-[60px] truncate">{selected ?? 'Tag'}</span>
-			</button>
-			{open && (
-				<div
-					className="absolute top-full left-0 mt-1 min-w-[160px] max-h-[300px] overflow-auto rounded border shadow-xl z-[100]"
-					style={{ backgroundColor: 'var(--bg-tertiary)', borderColor: 'var(--border)' }}
-				>
-					<button
-						onClick={() => {
-							onChange(null)
-							setOpen(false)
-						}}
-						className="w-full flex items-center px-2.5 py-1.5 text-xs text-left transition-colors"
-						style={{
-							color: !value ? 'var(--accent)' : 'var(--text-muted)',
-							backgroundColor: !value ? 'color-mix(in srgb, var(--accent) 10%, transparent)' : 'transparent',
-						}}
-					>
-						All Tags
-					</button>
-					{tags.map((tag) => (
-						<button
-							key={tag}
-							onClick={() => {
-								onChange(tag)
-								setOpen(false)
-							}}
-							className="w-full px-2.5 py-1.5 text-xs text-left transition-colors truncate"
-							style={{
-								color: value === tag ? 'var(--accent)' : 'var(--text-muted)',
-								backgroundColor: value === tag ? 'color-mix(in srgb, var(--accent) 10%, transparent)' : 'transparent',
-							}}
-						>
-							{tag}
-						</button>
-					))}
-				</div>
-			)}
-		</div>
+		<Dropdown value={value} onChange={onChange} options={options} placeholder="Tag" allLabel="All Tags" Icon={Tag} />
 	)
 }
 
@@ -319,7 +236,16 @@ export function TrackerDropdown({ value, onChange, trackers }: TrackerDropdownPr
 			return { value: t, label: t }
 		}
 	})
-	return <Dropdown value={value} onChange={onChange} options={options} placeholder="Tracker" Icon={Repeat} />
+	return (
+		<Dropdown
+			value={value}
+			onChange={onChange}
+			options={options}
+			placeholder="Tracker"
+			allLabel="All Trackers"
+			Icon={Repeat}
+		/>
+	)
 }
 
 interface ColumnSelectorProps {
