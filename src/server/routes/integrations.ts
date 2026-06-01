@@ -2,7 +2,7 @@ import { Hono } from 'hono'
 import { db, type Integration } from '../db'
 import { encrypt, decrypt } from '../utils/crypto'
 import { validateUrl } from '../utils/url'
-import { loginToQbt } from '../utils/qbt'
+import { loginToQbt, isTorrentAddSuccessful } from '../utils/qbt'
 import { authMiddleware } from '../middleware/auth'
 import { log } from '../utils/logger'
 
@@ -289,7 +289,7 @@ integrations.post('/:id/grab', async (c) => {
 		})
 
 		const addText = await addRes.text()
-		if (!addRes.ok || (addText.trim() !== 'Ok.' && addText.trim() !== 'Ok')) {
+		if (!addRes.ok || !isTorrentAddSuccessful(addText)) {
 			return c.json({ error: `Failed to add torrent: ${addText || `HTTP ${addRes.status}`}` }, 400)
 		}
 

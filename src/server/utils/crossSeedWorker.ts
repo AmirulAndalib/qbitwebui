@@ -11,7 +11,7 @@ import {
 	CrossSeedDecisionType,
 	MatchMode,
 } from '../db'
-import { loginToQbt } from './qbt'
+import { loginToQbt, isTorrentAddSuccessful } from './qbt'
 import { fetchWithTls } from './fetch'
 import { decrypt } from './crypto'
 import { log } from './logger'
@@ -314,7 +314,7 @@ async function addTorrentToQbt(
 			body: formData,
 		})
 		const text = await res.text()
-		const apiSuccess = res.ok && text.trim().startsWith('Ok')
+		const apiSuccess = res.ok && isTorrentAddSuccessful(text)
 
 		if (!apiSuccess) {
 			log.error(`[CrossSeed] API returned failure: ${text}`)
