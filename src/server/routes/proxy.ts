@@ -143,6 +143,23 @@ function getAgentUrl(instance: Instance): string {
 	return url.origin
 }
 
+export function extractQbtSessionToken(cookie: string | null | undefined): string {
+	if (!cookie) return ''
+
+	const sessionCookie = cookie
+		.split(';')
+		.map((part) => part.trim())
+		.find((part) => {
+			const equalsIndex = part.indexOf('=')
+			return equalsIndex > 0 && part.slice(0, equalsIndex).includes('SID')
+		})
+
+	const equalsIndex = sessionCookie?.indexOf('=') ?? -1
+	if (equalsIndex < 0) return ''
+
+	return sessionCookie!.slice(equalsIndex + 1)
+}
+
 proxy.all('/:id/agent/*', async (c) => {
 	const user = c.get('user')
 	const instanceId = Number(c.req.param('id'))
@@ -170,7 +187,7 @@ proxy.all('/:id/agent/*', async (c) => {
 
 	try {
 		const cookie = await getQbtSession(instance)
-		const sid = cookie?.match(/SID=([^;]+)/)?.[1] || ''
+		const sid = extractQbtSessionToken(cookie)
 
 		const headers = new Headers()
 		headers.set('X-QBT-SID', sid)
