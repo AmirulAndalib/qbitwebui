@@ -624,15 +624,10 @@ export function TorrentList() {
 											{selected.size === filtered.length && filtered.length > 0 && (
 												<Square className="w-2.5 h-2.5 fill-current" style={{ color: 'var(--accent)' }} />
 											)}
-											{selected.size > 0 &&
-												selected.size < filtered.length &&
+											{selected.size > 0 && selected.size < filtered.length && (
 												// Indeterminate state icon (minus/dash)
-												(
-													<div
-														className="w-2 h-0.5 rounded-full"
-														style={{ backgroundColor: 'var(--accent)' }}
-													/>
-												)}
+												<div className="w-2 h-0.5 rounded-full" style={{ backgroundColor: 'var(--accent)' }} />
+											)}
 										</button>
 										<button
 											onClick={() => handleSort('name')}
@@ -877,4 +872,3 @@ export function TorrentList() {
 		</div>
 	)
 }
-

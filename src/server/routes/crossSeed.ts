@@ -449,10 +449,9 @@ crossSeed.get('/history/:instanceId/:searcheeId/decisions', (c) => {
 	}
 
 	const decisions = db
-		.query<
-			CrossSeedDecision,
-			[number]
-		>('SELECT * FROM cross_seed_decision WHERE searchee_id = ? ORDER BY last_seen DESC')
+		.query<CrossSeedDecision, [number]>(
+			'SELECT * FROM cross_seed_decision WHERE searchee_id = ? ORDER BY last_seen DESC'
+		)
 		.all(searcheeId)
 
 	return c.json(decisions)

@@ -36,7 +36,10 @@ export function ViewSelector({
 	}, [])
 
 	function handleToggle() {
-		if (open) { setOpen(false); return }
+		if (open) {
+			setOpen(false)
+			return
+		}
 		const rect = buttonRef.current?.getBoundingClientRect()
 		if (rect) setPos({ top: rect.bottom, right: window.innerWidth - rect.right })
 		setOpen(true)
@@ -98,60 +101,135 @@ export function ViewSelector({
 				</button>
 			)}
 
-			{open && pos && createPortal(
-				<>
-					<div
-						onMouseDown={closeDropdown}
-						style={{ position: 'fixed', inset: 0, zIndex: 99 }}
-					/>
-					<div
-						className="min-w-[200px] max-h-[400px] overflow-auto rounded border shadow-xl"
-						style={{
-							position: 'fixed',
-							top: pos.top + 4,
-							right: pos.right,
-							zIndex: 100,
-							backgroundColor: 'var(--bg-tertiary)',
-							borderColor: 'var(--border)',
-						}}
-					>
-					<button
-						onClick={() => {
-							onViewSelect(null)
-							setOpen(false)
-						}}
-						className="w-full flex items-center px-2.5 py-1.5 text-xs text-left transition-colors"
-						style={{
-							color: !views.activeViewId ? 'var(--accent)' : 'var(--text-muted)',
-							backgroundColor: !views.activeViewId
-								? 'color-mix(in srgb, var(--accent) 10%, transparent)'
-								: 'transparent',
-						}}
-					>
-						Default View
-					</button>
-
-					{views.views.length > 0 && <div className="border-t" style={{ borderColor: 'var(--border)' }} />}
-
-					{views.views.map((view) => (
+			{open &&
+				pos &&
+				createPortal(
+					<>
+						<div onMouseDown={closeDropdown} style={{ position: 'fixed', inset: 0, zIndex: 99 }} />
 						<div
-							key={view.id}
-							className="flex items-center group"
+							className="min-w-[200px] max-h-[400px] overflow-auto rounded border shadow-xl"
 							style={{
-								backgroundColor:
-									views.activeViewId === view.id ? 'color-mix(in srgb, var(--accent) 10%, transparent)' : 'transparent',
+								position: 'fixed',
+								top: pos.top + 4,
+								right: pos.right,
+								zIndex: 100,
+								backgroundColor: 'var(--bg-tertiary)',
+								borderColor: 'var(--border)',
 							}}
 						>
-							{editingId === view.id ? (
-								<div className="flex-1 flex items-center gap-1 px-2 py-1">
+							<button
+								onClick={() => {
+									onViewSelect(null)
+									setOpen(false)
+								}}
+								className="w-full flex items-center px-2.5 py-1.5 text-xs text-left transition-colors"
+								style={{
+									color: !views.activeViewId ? 'var(--accent)' : 'var(--text-muted)',
+									backgroundColor: !views.activeViewId
+										? 'color-mix(in srgb, var(--accent) 10%, transparent)'
+										: 'transparent',
+								}}
+							>
+								Default View
+							</button>
+
+							{views.views.length > 0 && <div className="border-t" style={{ borderColor: 'var(--border)' }} />}
+
+							{views.views.map((view) => (
+								<div
+									key={view.id}
+									className="flex items-center group"
+									style={{
+										backgroundColor:
+											views.activeViewId === view.id
+												? 'color-mix(in srgb, var(--accent) 10%, transparent)'
+												: 'transparent',
+									}}
+								>
+									{editingId === view.id ? (
+										<div className="flex-1 flex items-center gap-1 px-2 py-1">
+											<input
+												type="text"
+												value={editName}
+												onChange={(e) => setEditName(e.target.value)}
+												onKeyDown={(e) => {
+													if (e.key === 'Enter') handleRename(view)
+													if (e.key === 'Escape') setEditingId(null)
+												}}
+												className="flex-1 px-2 py-1 rounded text-xs border"
+												style={{
+													backgroundColor: 'var(--bg-secondary)',
+													borderColor: 'var(--border)',
+													color: 'var(--text-primary)',
+												}}
+												autoFocus
+											/>
+											<button
+												onClick={() => handleRename(view)}
+												className="p-1 rounded transition-colors hover:opacity-80"
+												style={{ color: 'var(--accent)' }}
+											>
+												<Check className="w-3 h-3" strokeWidth={2} />
+											</button>
+											<button
+												onClick={() => setEditingId(null)}
+												className="p-1 rounded transition-colors hover:opacity-80"
+												style={{ color: 'var(--text-muted)' }}
+											>
+												<X className="w-3 h-3" strokeWidth={2} />
+											</button>
+										</div>
+									) : (
+										<>
+											<button
+												onClick={() => {
+													onViewSelect(view.id)
+													setOpen(false)
+												}}
+												className="flex-1 px-2.5 py-1.5 text-xs text-left transition-colors truncate"
+												style={{
+													color: views.activeViewId === view.id ? 'var(--accent)' : 'var(--text-muted)',
+												}}
+											>
+												{view.name}
+											</button>
+											<button
+												onClick={(e) => startEdit(view, e)}
+												className="p-1.5 opacity-0 group-hover:opacity-100 transition-opacity"
+												style={{ color: 'var(--text-muted)' }}
+												title="Rename"
+											>
+												<Pencil className="w-3 h-3" strokeWidth={2} />
+											</button>
+											<button
+												onClick={(e) => {
+													e.stopPropagation()
+													onDelete(view.id)
+												}}
+												className="p-1.5 opacity-0 group-hover:opacity-100 transition-opacity"
+												style={{ color: 'var(--error)' }}
+												title="Delete"
+											>
+												<Trash2 className="w-3 h-3" strokeWidth={2} />
+											</button>
+										</>
+									)}
+								</div>
+							))}
+
+							<div className="border-t" style={{ borderColor: 'var(--border)' }} />
+
+							{saveAsMode ? (
+								<div className="flex items-center gap-1 px-2 py-1.5">
 									<input
 										type="text"
-										value={editName}
-										onChange={(e) => setEditName(e.target.value)}
+										value={newName}
+										onChange={(e) => setNewName(e.target.value)}
 										onKeyDown={(e) => {
-											if (e.key === 'Enter') handleRename(view)
-											if (e.key === 'Escape') setEditingId(null)
+											if (e.key === 'Enter') handleSaveAs()
+											if (e.key === 'Escape') setSaveAsMode(false)
 										}}
+										placeholder="View name..."
 										className="flex-1 px-2 py-1 rounded text-xs border"
 										style={{
 											backgroundColor: 'var(--bg-secondary)',
@@ -161,14 +239,15 @@ export function ViewSelector({
 										autoFocus
 									/>
 									<button
-										onClick={() => handleRename(view)}
-										className="p-1 rounded transition-colors hover:opacity-80"
+										onClick={handleSaveAs}
+										disabled={!newName.trim()}
+										className="p-1 rounded transition-colors hover:opacity-80 disabled:opacity-40"
 										style={{ color: 'var(--accent)' }}
 									>
 										<Check className="w-3 h-3" strokeWidth={2} />
 									</button>
 									<button
-										onClick={() => setEditingId(null)}
+										onClick={() => setSaveAsMode(false)}
 										className="p-1 rounded transition-colors hover:opacity-80"
 										style={{ color: 'var(--text-muted)' }}
 									>
@@ -176,96 +255,19 @@ export function ViewSelector({
 									</button>
 								</div>
 							) : (
-								<>
-									<button
-										onClick={() => {
-											onViewSelect(view.id)
-											setOpen(false)
-										}}
-										className="flex-1 px-2.5 py-1.5 text-xs text-left transition-colors truncate"
-										style={{
-											color: views.activeViewId === view.id ? 'var(--accent)' : 'var(--text-muted)',
-										}}
-									>
-										{view.name}
-									</button>
-									<button
-										onClick={(e) => startEdit(view, e)}
-										className="p-1.5 opacity-0 group-hover:opacity-100 transition-opacity"
-										style={{ color: 'var(--text-muted)' }}
-										title="Rename"
-									>
-										<Pencil className="w-3 h-3" strokeWidth={2} />
-									</button>
-									<button
-										onClick={(e) => {
-											e.stopPropagation()
-											onDelete(view.id)
-										}}
-										className="p-1.5 opacity-0 group-hover:opacity-100 transition-opacity"
-										style={{ color: 'var(--error)' }}
-										title="Delete"
-									>
-										<Trash2 className="w-3 h-3" strokeWidth={2} />
-									</button>
-								</>
+								<button
+									onClick={() => setSaveAsMode(true)}
+									className="w-full flex items-center gap-2 px-2.5 py-1.5 text-xs transition-colors hover:opacity-80"
+									style={{ color: 'var(--accent)' }}
+								>
+									<Save className="w-3 h-3" strokeWidth={2} />
+									Save current as...
+								</button>
 							)}
 						</div>
-					))}
-
-					<div className="border-t" style={{ borderColor: 'var(--border)' }} />
-
-					{saveAsMode ? (
-						<div className="flex items-center gap-1 px-2 py-1.5">
-							<input
-								type="text"
-								value={newName}
-								onChange={(e) => setNewName(e.target.value)}
-								onKeyDown={(e) => {
-									if (e.key === 'Enter') handleSaveAs()
-									if (e.key === 'Escape') setSaveAsMode(false)
-								}}
-								placeholder="View name..."
-								className="flex-1 px-2 py-1 rounded text-xs border"
-								style={{
-									backgroundColor: 'var(--bg-secondary)',
-									borderColor: 'var(--border)',
-									color: 'var(--text-primary)',
-								}}
-								autoFocus
-							/>
-							<button
-								onClick={handleSaveAs}
-								disabled={!newName.trim()}
-								className="p-1 rounded transition-colors hover:opacity-80 disabled:opacity-40"
-								style={{ color: 'var(--accent)' }}
-							>
-								<Check className="w-3 h-3" strokeWidth={2} />
-							</button>
-							<button
-								onClick={() => setSaveAsMode(false)}
-								className="p-1 rounded transition-colors hover:opacity-80"
-								style={{ color: 'var(--text-muted)' }}
-							>
-								<X className="w-3 h-3" strokeWidth={2} />
-							</button>
-						</div>
-					) : (
-						<button
-							onClick={() => setSaveAsMode(true)}
-							className="w-full flex items-center gap-2 px-2.5 py-1.5 text-xs transition-colors hover:opacity-80"
-							style={{ color: 'var(--accent)' }}
-						>
-							<Save className="w-3 h-3" strokeWidth={2} />
-							Save current as...
-						</button>
-					)}
-				</div>
-				</>,
-				document.body,
-			)}
+					</>,
+					document.body
+				)}
 		</div>
 	)
 }
-
-

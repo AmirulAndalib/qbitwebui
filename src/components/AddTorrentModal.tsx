@@ -351,4 +351,3 @@ export function AddTorrentModal({ open, onClose }: Props) {
 		</div>
 	)
 }
-

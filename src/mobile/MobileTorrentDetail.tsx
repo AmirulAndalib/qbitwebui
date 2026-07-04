@@ -146,14 +146,20 @@ export function MobileTorrentDetail({ torrentHash, instanceId, onClose }: Props)
 
 		if (pathEditorMode === 'savePath') {
 			setLocationMutation.mutate(trimmed, {
-				onSuccess: () => { addPath(trimmed); setPathEditorMode(null) },
+				onSuccess: () => {
+					addPath(trimmed)
+					setPathEditorMode(null)
+				},
 			})
 			return
 		}
 
 		if (pathEditorMode === 'downloadPath') {
 			setDownloadPathMutation.mutate(trimmed, {
-				onSuccess: () => { addPath(trimmed); setPathEditorMode(null) },
+				onSuccess: () => {
+					addPath(trimmed)
+					setPathEditorMode(null)
+				},
 			})
 		}
 	}
@@ -256,7 +262,7 @@ export function MobileTorrentDetail({ torrentHash, instanceId, onClose }: Props)
 							</button>
 						</div>
 
-<div className="mx-4 mt-3">
+						<div className="mx-4 mt-3">
 							<div className="flex p-1.5 rounded-xl" style={{ backgroundColor: 'var(--bg-secondary)' }}>
 								{tabs.map((t) => (
 									<button
@@ -454,105 +460,110 @@ export function MobileTorrentDetail({ torrentHash, instanceId, onClose }: Props)
 				</Drawer.Portal>
 			</Drawer.Root>
 
-			{pathEditorMode && createPortal(
-				<div
-					className="fixed inset-0 z-[9999] flex items-center justify-center"
-					style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}
-					onClick={() => !pathMutationPending && setPathEditorMode(null)}
-				>
+			{pathEditorMode &&
+				createPortal(
 					<div
-						className="mx-4 w-full max-w-lg rounded-2xl border p-5"
-						style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border)' }}
-						onClick={(e) => e.stopPropagation()}
+						className="fixed inset-0 z-[9999] flex items-center justify-center"
+						style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}
+						onClick={() => !pathMutationPending && setPathEditorMode(null)}
 					>
-						<h3 className="text-lg font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>
-							{pathEditorTitle}
-						</h3>
-						<PathInput
-							value={pathValue}
-							onChange={setPathValue}
-							onKeyDown={(e) => e.key === 'Enter' && handlePathSave()}
-							onTouchEnd={(e) => { e.stopPropagation(); (e.target as HTMLInputElement).focus() }}
-							autoFocus
-							className="w-full px-4 py-3 rounded-xl border text-base"
-							style={{
-								backgroundColor: 'var(--bg-tertiary)',
-								borderColor: 'var(--border)',
-								color: 'var(--text-primary)',
-								fontSize: '16px',
-							}}
-						/>
-						<div className="flex gap-3 mt-5">
-							<button
-								onClick={() => setPathEditorMode(null)}
-								disabled={pathMutationPending}
-								className="flex-1 py-3 rounded-xl text-sm font-medium disabled:opacity-50"
-								style={{ backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-primary)' }}
-							>
-								Cancel
-							</button>
-							<button
-								onClick={handlePathSave}
-								disabled={!pathValue.trim() || pathMutationPending}
-								className="flex-1 py-3 rounded-xl text-sm font-medium disabled:opacity-50"
-								style={{ backgroundColor: 'var(--accent)', color: 'var(--accent-contrast)' }}
-							>
-								{pathMutationPending ? 'Saving...' : 'Save'}
-							</button>
-						</div>
-					</div>
-				</div>,
-				document.body
-			)}
-
-			{showDeleteConfirm && createPortal(
-				<div
-					className="fixed inset-0 z-[9999] flex items-center justify-center"
-					style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}
-					onClick={() => setShowDeleteConfirm(false)}
-				>
-					<div
-						className="mx-4 w-full max-w-lg rounded-2xl border p-5"
-						style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border)' }}
-						onClick={(e) => e.stopPropagation()}
-					>
-						<h3 className="text-lg font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>
-							Delete Torrent
-						</h3>
-						<p className="text-sm mb-4" style={{ color: 'var(--text-muted)' }}>
-							Are you sure you want to delete this torrent?
-						</p>
-						<label className="flex items-center gap-3 mb-5 cursor-pointer">
-							<input
-								type="checkbox"
-								checked={deleteFiles}
-								onChange={(e) => setDeleteFiles(e.target.checked)}
-								className="w-5 h-5 rounded"
+						<div
+							className="mx-4 w-full max-w-lg rounded-2xl border p-5"
+							style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border)' }}
+							onClick={(e) => e.stopPropagation()}
+						>
+							<h3 className="text-lg font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>
+								{pathEditorTitle}
+							</h3>
+							<PathInput
+								value={pathValue}
+								onChange={setPathValue}
+								onKeyDown={(e) => e.key === 'Enter' && handlePathSave()}
+								onTouchEnd={(e) => {
+									e.stopPropagation()
+									;(e.target as HTMLInputElement).focus()
+								}}
+								autoFocus
+								className="w-full px-4 py-3 rounded-xl border text-base"
+								style={{
+									backgroundColor: 'var(--bg-tertiary)',
+									borderColor: 'var(--border)',
+									color: 'var(--text-primary)',
+									fontSize: '16px',
+								}}
 							/>
-							<span className="text-sm" style={{ color: 'var(--text-primary)' }}>
-								Also delete files from disk
-							</span>
-						</label>
-						<div className="flex gap-3">
-							<button
-								onClick={() => setShowDeleteConfirm(false)}
-								className="flex-1 py-3 rounded-xl text-sm font-medium"
-								style={{ backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-primary)' }}
-							>
-								Cancel
-							</button>
-							<button
-								onClick={handleDelete}
-								className="flex-1 py-3 rounded-xl text-sm font-medium"
-								style={{ backgroundColor: 'var(--error)', color: 'var(--accent-contrast)' }}
-							>
-								Delete
-							</button>
+							<div className="flex gap-3 mt-5">
+								<button
+									onClick={() => setPathEditorMode(null)}
+									disabled={pathMutationPending}
+									className="flex-1 py-3 rounded-xl text-sm font-medium disabled:opacity-50"
+									style={{ backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-primary)' }}
+								>
+									Cancel
+								</button>
+								<button
+									onClick={handlePathSave}
+									disabled={!pathValue.trim() || pathMutationPending}
+									className="flex-1 py-3 rounded-xl text-sm font-medium disabled:opacity-50"
+									style={{ backgroundColor: 'var(--accent)', color: 'var(--accent-contrast)' }}
+								>
+									{pathMutationPending ? 'Saving...' : 'Save'}
+								</button>
+							</div>
 						</div>
-					</div>
-				</div>,
-				document.body
-			)}
+					</div>,
+					document.body
+				)}
+
+			{showDeleteConfirm &&
+				createPortal(
+					<div
+						className="fixed inset-0 z-[9999] flex items-center justify-center"
+						style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}
+						onClick={() => setShowDeleteConfirm(false)}
+					>
+						<div
+							className="mx-4 w-full max-w-lg rounded-2xl border p-5"
+							style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border)' }}
+							onClick={(e) => e.stopPropagation()}
+						>
+							<h3 className="text-lg font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>
+								Delete Torrent
+							</h3>
+							<p className="text-sm mb-4" style={{ color: 'var(--text-muted)' }}>
+								Are you sure you want to delete this torrent?
+							</p>
+							<label className="flex items-center gap-3 mb-5 cursor-pointer">
+								<input
+									type="checkbox"
+									checked={deleteFiles}
+									onChange={(e) => setDeleteFiles(e.target.checked)}
+									className="w-5 h-5 rounded"
+								/>
+								<span className="text-sm" style={{ color: 'var(--text-primary)' }}>
+									Also delete files from disk
+								</span>
+							</label>
+							<div className="flex gap-3">
+								<button
+									onClick={() => setShowDeleteConfirm(false)}
+									className="flex-1 py-3 rounded-xl text-sm font-medium"
+									style={{ backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-primary)' }}
+								>
+									Cancel
+								</button>
+								<button
+									onClick={handleDelete}
+									className="flex-1 py-3 rounded-xl text-sm font-medium"
+									style={{ backgroundColor: 'var(--error)', color: 'var(--accent-contrast)' }}
+								>
+									Delete
+								</button>
+							</div>
+						</div>
+					</div>,
+					document.body
+				)}
 		</>
 	)
 }
@@ -617,5 +628,3 @@ function PathRow({
 		</div>
 	)
 }
-
-

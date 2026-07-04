@@ -68,10 +68,9 @@ export async function getTorznabIndexers(prowlarrUrl: string, apiKey: string): P
 
 function getIndexerStatus(integrationId: number, indexerId: number): CrossSeedIndexer | null {
 	return db
-		.query<
-			CrossSeedIndexer,
-			[number, number]
-		>('SELECT * FROM cross_seed_indexer WHERE integration_id = ? AND indexer_id = ?')
+		.query<CrossSeedIndexer, [number, number]>(
+			'SELECT * FROM cross_seed_indexer WHERE integration_id = ? AND indexer_id = ?'
+		)
 		.get(integrationId, indexerId)
 }
 

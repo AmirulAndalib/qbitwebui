@@ -1122,5 +1122,3 @@ export function SearchPanel() {
 		</div>
 	)
 }
-
-

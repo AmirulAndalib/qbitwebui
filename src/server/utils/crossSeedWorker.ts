@@ -548,10 +548,9 @@ function upsertSearchee(
 		[instanceId, hash, name, size, fileCount, fileSizesJson]
 	)
 	const row = db
-		.query<
-			{ id: number },
-			[number, string]
-		>('SELECT id FROM cross_seed_searchee WHERE instance_id = ? AND torrent_hash = ?')
+		.query<{ id: number }, [number, string]>(
+			'SELECT id FROM cross_seed_searchee WHERE instance_id = ? AND torrent_hash = ?'
+		)
 		.get(instanceId, hash)
 	return row!.id
 }
@@ -757,10 +756,9 @@ export async function runCrossSeedScan(options: ScanOptions): Promise<ScanResult
 				}
 
 				const existingDecision = db
-					.query<
-						{ decision: string; info_hash: string | null },
-						[number, string]
-					>('SELECT decision, info_hash FROM cross_seed_decision WHERE searchee_id = ? AND guid = ?')
+					.query<{ decision: string; info_hash: string | null }, [number, string]>(
+						'SELECT decision, info_hash FROM cross_seed_decision WHERE searchee_id = ? AND guid = ?'
+					)
 					.get(existingSearchee?.id ?? 0, candidate.guid)
 
 				if (existingDecision) {

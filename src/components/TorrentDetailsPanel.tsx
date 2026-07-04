@@ -199,7 +199,11 @@ function GeneralTab({ hash, category, tags }: { hash: string; category: string; 
 				<div className="grid grid-cols-12 gap-1.5">
 					<InfoCell label="Time Active" value={timeActive} span={2} />
 					<InfoCell label="ETA" value={formatEta(properties.eta)} span={2} />
-					<InfoCell label="Connections" value={`${properties.nb_connections} (${properties.nb_connections_limit} max)`} span={2} />
+					<InfoCell
+						label="Connections"
+						value={`${properties.nb_connections} (${properties.nb_connections_limit} max)`}
+						span={2}
+					/>
 					<InfoCell label="Seeds" value={`${properties.seeds} (${properties.seeds_total} total)`} span={2} />
 					<InfoCell label="Peers" value={`${properties.peers} (${properties.peers_total} total)`} span={2} />
 					<InfoCell label="Wasted" value={formatSize(properties.total_wasted)} span={2} />
@@ -226,9 +230,21 @@ function GeneralTab({ hash, category, tags }: { hash: string; category: string; 
 					<InfoCell label="DL Limit" value={formatLimit(properties.dl_limit)} span={2} />
 					<InfoCell label="UP Limit" value={formatLimit(properties.up_limit)} span={2} />
 					<InfoCell label="Ratio" value={ratio} span={3} />
-					<InfoCell label="Reannounce" value={properties.reannounce > 0 ? formatDuration(properties.reannounce) : '0'} span={3} />
-					<InfoCell label="Last Seen Complete" value={properties.last_seen > 0 ? formatDate(properties.last_seen) : 'Never'} span={3} />
-					<InfoCell label="Popularity" value={properties.popularity !== undefined ? properties.popularity.toFixed(2) : '—'} span={3} />
+					<InfoCell
+						label="Reannounce"
+						value={properties.reannounce > 0 ? formatDuration(properties.reannounce) : '0'}
+						span={3}
+					/>
+					<InfoCell
+						label="Last Seen Complete"
+						value={properties.last_seen > 0 ? formatDate(properties.last_seen) : 'Never'}
+						span={3}
+					/>
+					<InfoCell
+						label="Popularity"
+						value={properties.popularity !== undefined ? properties.popularity.toFixed(2) : '—'}
+						span={3}
+					/>
 				</div>
 			</fieldset>
 
@@ -241,12 +257,26 @@ function GeneralTab({ hash, category, tags }: { hash: string; category: string; 
 				</legend>
 				<div className="grid grid-cols-6 gap-1.5">
 					<InfoCell label="Total Size" value={formatSize(properties.total_size)} />
-					<InfoCell label="Pieces" value={`${properties.pieces_num} × ${formatSize(properties.piece_size)} (have ${properties.pieces_have})`} />
+					<InfoCell
+						label="Pieces"
+						value={`${properties.pieces_num} × ${formatSize(properties.piece_size)} (have ${properties.pieces_have})`}
+					/>
 					<InfoCell label="Created By" value={properties.created_by || '—'} />
 					<InfoCell label="Added On" value={formatDate(properties.addition_date)} />
-					<InfoCell label="Completed On" value={properties.completion_date > 0 ? formatDate(properties.completion_date) : '—'} />
-					<InfoCell label="Created On" value={properties.creation_date > 0 ? formatDate(properties.creation_date) : '—'} />
-					<InfoCell label="Private" value={properties.is_private ? 'Yes' : 'No'} accent={properties.is_private} span={2} />
+					<InfoCell
+						label="Completed On"
+						value={properties.completion_date > 0 ? formatDate(properties.completion_date) : '—'}
+					/>
+					<InfoCell
+						label="Created On"
+						value={properties.creation_date > 0 ? formatDate(properties.creation_date) : '—'}
+					/>
+					<InfoCell
+						label="Private"
+						value={properties.is_private ? 'Yes' : 'No'}
+						accent={properties.is_private}
+						span={2}
+					/>
 					<InfoCell label="Category" value={category || '—'} span={2} />
 					<InfoCell label="Tags" value={tags || '—'} span={2} />
 				</div>
@@ -272,28 +302,29 @@ function GeneralTab({ hash, category, tags }: { hash: string; category: string; 
 						Edit
 					</button>
 				</div>
-				{properties.download_path && (properties.download_path !== properties.save_path || properties.pieces_have < properties.pieces_num) && (
-					<div className="mt-1.5 px-3 py-2 rounded border flex items-start gap-3" style={cellBase}>
-						<div className="flex-1 min-w-0">
-							<div className="text-[9px] uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>
-								Download Path
+				{properties.download_path &&
+					(properties.download_path !== properties.save_path || properties.pieces_have < properties.pieces_num) && (
+						<div className="mt-1.5 px-3 py-2 rounded border flex items-start gap-3" style={cellBase}>
+							<div className="flex-1 min-w-0">
+								<div className="text-[9px] uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>
+									Download Path
+								</div>
+								<div className="text-xs font-mono mt-0.5 break-all" style={{ color: 'var(--text-primary)' }}>
+									{properties.download_path}
+								</div>
 							</div>
-							<div className="text-xs font-mono mt-0.5 break-all" style={{ color: 'var(--text-primary)' }}>
-								{properties.download_path}
-							</div>
+							{properties.pieces_have < properties.pieces_num && (
+								<button
+									onClick={() => openEditor('downloadPath')}
+									disabled={pathMutationPending}
+									className="shrink-0 text-[9px] uppercase tracking-widest font-medium hover:opacity-80 disabled:opacity-50"
+									style={{ color: 'var(--accent)' }}
+								>
+									Edit
+								</button>
+							)}
 						</div>
-						{properties.pieces_have < properties.pieces_num && (
-							<button
-								onClick={() => openEditor('downloadPath')}
-								disabled={pathMutationPending}
-								className="shrink-0 text-[9px] uppercase tracking-widest font-medium hover:opacity-80 disabled:opacity-50"
-								style={{ color: 'var(--accent)' }}
-							>
-								Edit
-							</button>
-						)}
-					</div>
-				)}
+					)}
 				{editorMode && (
 					<div className="mt-1.5 rounded border p-2 space-y-2" style={{ ...cellBase }}>
 						<div className="text-[9px] uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>
@@ -906,6 +937,3 @@ export function TorrentDetailsPanel({ hash, name, category, tags, expanded, onTo
 		</div>
 	)
 }
-
-
-

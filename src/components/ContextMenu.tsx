@@ -182,11 +182,7 @@ export function ContextMenu({ x, y, torrents, onClose }: Props) {
 	}
 
 	const editorTitle =
-		editorMode === 'rename'
-			? 'Rename torrent'
-			: editorMode === 'savePath'
-				? 'Change save path'
-				: 'Change download path'
+		editorMode === 'rename' ? 'Rename torrent' : editorMode === 'savePath' ? 'Change save path' : 'Change download path'
 	const editorActionLabel = editorMode === 'rename' ? 'Rename' : 'Save'
 	const editorPlaceholder =
 		editorMode === 'rename'
@@ -213,7 +209,11 @@ export function ContextMenu({ x, y, torrents, onClose }: Props) {
 							if (e.key === 'Escape') onClose()
 						}}
 						className="w-full px-3 py-2 rounded-lg border text-sm mb-2"
-						style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border)', color: 'var(--text-primary)' }}
+						style={{
+							backgroundColor: 'var(--bg-secondary)',
+							borderColor: 'var(--border)',
+							color: 'var(--text-primary)',
+						}}
 					/>
 				) : (
 					<div className="mb-2">
@@ -227,7 +227,11 @@ export function ContextMenu({ x, y, torrents, onClose }: Props) {
 								if (e.key === 'Escape') onClose()
 							}}
 							className="w-full px-3 py-2 rounded-lg border text-sm"
-							style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border)', color: 'var(--text-primary)' }}
+							style={{
+								backgroundColor: 'var(--bg-secondary)',
+								borderColor: 'var(--border)',
+								color: 'var(--text-primary)',
+							}}
 						/>
 					</div>
 				)}
@@ -357,5 +361,3 @@ function MenuItem({
 		</button>
 	)
 }
-
-

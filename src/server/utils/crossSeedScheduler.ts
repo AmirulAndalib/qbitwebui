@@ -284,20 +284,18 @@ function configToStatus(config: CrossSeedConfig & { label: string }): SchedulerS
 
 export function getSchedulerStatus(): SchedulerStatus[] {
 	return db
-		.query<
-			CrossSeedConfig & { label: string },
-			[]
-		>(`SELECT c.*, i.label FROM cross_seed_config c JOIN instances i ON c.instance_id = i.id`)
+		.query<CrossSeedConfig & { label: string }, []>(
+			`SELECT c.*, i.label FROM cross_seed_config c JOIN instances i ON c.instance_id = i.id`
+		)
 		.all()
 		.map(configToStatus)
 }
 
 export function getInstanceStatus(instanceId: number): SchedulerStatus | null {
 	const config = db
-		.query<
-			CrossSeedConfig & { label: string },
-			[number]
-		>(`SELECT c.*, i.label FROM cross_seed_config c JOIN instances i ON c.instance_id = i.id WHERE c.instance_id = ?`)
+		.query<CrossSeedConfig & { label: string }, [number]>(
+			`SELECT c.*, i.label FROM cross_seed_config c JOIN instances i ON c.instance_id = i.id WHERE c.instance_id = ?`
+		)
 		.get(instanceId)
 	return config ? configToStatus(config) : null
 }

@@ -143,6 +143,3 @@ export function PathInput({
 		</div>
 	)
 }
-
-
-

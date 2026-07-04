@@ -1164,5 +1164,3 @@ export function MobileSearchPanel({ instances, onBack }: Props) {
 		</div>
 	)
 }
-
-

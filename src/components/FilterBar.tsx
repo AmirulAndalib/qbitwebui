@@ -117,59 +117,61 @@ function Dropdown<T extends string>({ value, onChange, options, placeholder, all
 				<Icon className="w-3.5 h-3.5" strokeWidth={2} />
 				<span className="text-xs font-medium max-w-[60px] truncate">{selected?.label ?? placeholder}</span>
 			</button>
-			{open && pos && createPortal(
-				<>
-					<div onMouseDown={() => setOpen(false)} style={{ position: 'fixed', inset: 0, zIndex: 99 }} />
-					<div
-						className="min-w-[160px] max-h-[300px] overflow-auto rounded border shadow-xl"
-						style={{
-							position: 'fixed',
-							top: pos.top,
-							left: pos.left,
-							zIndex: 100,
-							backgroundColor: 'var(--bg-tertiary)',
-							borderColor: 'var(--border)',
-						}}
-					>
-						<button
-							onClick={() => {
-								onChange(null)
-								setOpen(false)
-							}}
-							className="w-full flex items-center px-2.5 py-1.5 text-xs text-left transition-colors"
+			{open &&
+				pos &&
+				createPortal(
+					<>
+						<div onMouseDown={() => setOpen(false)} style={{ position: 'fixed', inset: 0, zIndex: 99 }} />
+						<div
+							className="min-w-[160px] max-h-[300px] overflow-auto rounded border shadow-xl"
 							style={{
-								color: !value ? 'var(--accent)' : 'var(--text-muted)',
-								backgroundColor: !value ? 'color-mix(in srgb, var(--accent) 10%, transparent)' : 'transparent',
+								position: 'fixed',
+								top: pos.top,
+								left: pos.left,
+								zIndex: 100,
+								backgroundColor: 'var(--bg-tertiary)',
+								borderColor: 'var(--border)',
 							}}
 						>
-							{allLabel}
-						</button>
-						{options.map((o) => (
 							<button
-								key={o.value}
 								onClick={() => {
-									onChange(o.value)
+									onChange(null)
 									setOpen(false)
 								}}
-								className="w-full flex items-center justify-between px-2.5 py-1.5 text-xs text-left transition-colors"
+								className="w-full flex items-center px-2.5 py-1.5 text-xs text-left transition-colors"
 								style={{
-									color: value === o.value ? 'var(--accent)' : 'var(--text-muted)',
-									backgroundColor:
-										value === o.value ? 'color-mix(in srgb, var(--accent) 10%, transparent)' : 'transparent',
+									color: !value ? 'var(--accent)' : 'var(--text-muted)',
+									backgroundColor: !value ? 'color-mix(in srgb, var(--accent) 10%, transparent)' : 'transparent',
 								}}
 							>
-								<span className="truncate">{o.label}</span>
-								{o.count !== undefined && (
-									<span style={{ color: 'var(--text-muted)' }} className="ml-2 text-xs">
-										{o.count}
-									</span>
-								)}
+								{allLabel}
 							</button>
-						))}
-					</div>
-				</>,
-				document.body,
-			)}
+							{options.map((o) => (
+								<button
+									key={o.value}
+									onClick={() => {
+										onChange(o.value)
+										setOpen(false)
+									}}
+									className="w-full flex items-center justify-between px-2.5 py-1.5 text-xs text-left transition-colors"
+									style={{
+										color: value === o.value ? 'var(--accent)' : 'var(--text-muted)',
+										backgroundColor:
+											value === o.value ? 'color-mix(in srgb, var(--accent) 10%, transparent)' : 'transparent',
+									}}
+								>
+									<span className="truncate">{o.label}</span>
+									{o.count !== undefined && (
+										<span style={{ color: 'var(--text-muted)' }} className="ml-2 text-xs">
+											{o.count}
+										</span>
+									)}
+								</button>
+							))}
+						</div>
+					</>,
+					document.body
+				)}
 		</>
 	)
 }
@@ -317,64 +319,63 @@ export function ColumnSelector({ columns, visible, onChange, columnOrder, onReor
 				<Columns3 className="w-3.5 h-3.5" strokeWidth={2} />
 				<span className="text-xs font-medium">Columns</span>
 			</button>
-			{open && pos && createPortal(
-				<>
-					<div
-						onMouseDown={() => setOpen(false)}
-						style={{ position: 'fixed', inset: 0, zIndex: 99 }}
-					/>
-					<div
-						className="min-w-[180px] max-h-[400px] overflow-auto rounded border shadow-xl"
-						style={{
-							position: 'fixed',
-							top: pos.top + 4,
-							right: pos.right,
-							zIndex: 100,
-							backgroundColor: 'var(--bg-tertiary)',
-							borderColor: 'var(--border)',
-						}}
-					>
-					<div
-						className="flex items-center justify-between px-2.5 py-1.5 border-b"
-						style={{ borderColor: 'var(--border)' }}
-					>
-						<span className="text-xs uppercase tracking-widest font-medium" style={{ color: 'var(--text-muted)' }}>
-							Columns
-						</span>
-						<button
-							onClick={() => {
-								onReset()
-								setOpen(false)
-							}}
-							className="text-xs transition-colors hover:opacity-80"
-							style={{ color: 'var(--accent)' }}
-						>
-							Reset
-						</button>
-					</div>
-					{orderedColumns.map((col) => (
+			{open &&
+				pos &&
+				createPortal(
+					<>
+						<div onMouseDown={() => setOpen(false)} style={{ position: 'fixed', inset: 0, zIndex: 99 }} />
 						<div
-							key={col.id}
-							draggable
-							onDragStart={(e) => handleDragStart(e, col.id)}
-							onDragOver={(e) => handleDragOver(e, col.id)}
-							onDragEnd={handleDragEnd}
-							className={`flex items-center gap-1.5 px-2 py-1.5 text-xs transition-colors hover:bg-white/5 cursor-move ${draggedId === col.id ? 'opacity-50' : ''}`}
-							style={{ color: 'var(--text-primary)' }}
+							className="min-w-[180px] max-h-[400px] overflow-auto rounded border shadow-xl"
+							style={{
+								position: 'fixed',
+								top: pos.top + 4,
+								right: pos.right,
+								zIndex: 100,
+								backgroundColor: 'var(--bg-tertiary)',
+								borderColor: 'var(--border)',
+							}}
 						>
-							<GripHorizontal className="w-3 h-3 shrink-0" style={{ color: 'var(--text-muted)' }} strokeWidth={2} />
-							<button onClick={() => toggle(col.id)} className="flex-1 flex items-center justify-between text-left">
-								<span>{col.label}</span>
-								{visible.has(col.id) && (
-									<Check className="w-3 h-3" style={{ color: 'var(--accent)' }} strokeWidth={3} />
-								)}
-							</button>
+							<div
+								className="flex items-center justify-between px-2.5 py-1.5 border-b"
+								style={{ borderColor: 'var(--border)' }}
+							>
+								<span className="text-xs uppercase tracking-widest font-medium" style={{ color: 'var(--text-muted)' }}>
+									Columns
+								</span>
+								<button
+									onClick={() => {
+										onReset()
+										setOpen(false)
+									}}
+									className="text-xs transition-colors hover:opacity-80"
+									style={{ color: 'var(--accent)' }}
+								>
+									Reset
+								</button>
+							</div>
+							{orderedColumns.map((col) => (
+								<div
+									key={col.id}
+									draggable
+									onDragStart={(e) => handleDragStart(e, col.id)}
+									onDragOver={(e) => handleDragOver(e, col.id)}
+									onDragEnd={handleDragEnd}
+									className={`flex items-center gap-1.5 px-2 py-1.5 text-xs transition-colors hover:bg-white/5 cursor-move ${draggedId === col.id ? 'opacity-50' : ''}`}
+									style={{ color: 'var(--text-primary)' }}
+								>
+									<GripHorizontal className="w-3 h-3 shrink-0" style={{ color: 'var(--text-muted)' }} strokeWidth={2} />
+									<button onClick={() => toggle(col.id)} className="flex-1 flex items-center justify-between text-left">
+										<span>{col.label}</span>
+										{visible.has(col.id) && (
+											<Check className="w-3 h-3" style={{ color: 'var(--accent)' }} strokeWidth={3} />
+										)}
+									</button>
+								</div>
+							))}
 						</div>
-					))}
-					</div>
-				</>,
-				document.body
-			)}
+					</>,
+					document.body
+				)}
 		</>
 	)
 }

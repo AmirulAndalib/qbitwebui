@@ -281,7 +281,11 @@ export async function setTorrentLocation(instanceId: number, hashes: string[], l
 	})
 }
 
-export async function setTorrentDownloadPath(instanceId: number, hashes: string[], downloadPath: string): Promise<void> {
+export async function setTorrentDownloadPath(
+	instanceId: number,
+	hashes: string[],
+	downloadPath: string
+): Promise<void> {
 	await action(instanceId, '/torrents/setDownloadPath', {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
