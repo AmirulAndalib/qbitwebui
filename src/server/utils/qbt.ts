@@ -169,3 +169,30 @@ export async function fetchInstanceTransferStats(
 		return null
 	}
 }
+
+export function isTorrentAddSuccessful(addText: string): boolean {
+	const trimmed = addText.trim()
+	if (trimmed === 'Ok.' || trimmed === 'Ok') {
+		return true
+	}
+	try {
+		const json = JSON.parse(trimmed)
+		if (json && typeof json === 'object') {
+			const successCount = json.success_count !== undefined ? Number(json.success_count) : 0
+			const pendingCount = json.pending_count !== undefined ? Number(json.pending_count) : 0
+			const failureCount = json.failure_count !== undefined ? Number(json.failure_count) : 0
+			const addedIds = Array.isArray(json.added_torrent_ids) ? json.added_torrent_ids : []
+
+			if (successCount > 0 || addedIds.length > 0 || pendingCount > 0) {
+				return true
+			}
+			if (failureCount > 0) {
+				return false
+			}
+		}
+	} catch {
+		// Not JSON, and not 'Ok'/'Ok.' -> treat as failed
+	}
+	return false
+}
+

@@ -189,9 +189,13 @@ vi.mock('../../src/server/db', () => ({
 	},
 }))
 
-vi.mock('../../src/server/utils/qbt', () => ({
-	loginToQbt: vi.fn(),
-}))
+vi.mock('../../src/server/utils/qbt', async (importOriginal) => {
+	const actual = await importOriginal<typeof import('../../src/server/utils/qbt')>()
+	return {
+		...actual,
+		loginToQbt: vi.fn(),
+	}
+})
 
 vi.mock('../../src/server/utils/crypto', () => ({
 	decrypt: vi.fn(() => 'apikey'),
